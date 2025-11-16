@@ -11,6 +11,8 @@ use App\Http\Controllers\Kurikulum\KurikulumController;
 use App\Http\Controllers\Absensi\AbsensiController;
 use App\Http\Controllers\Jadwal\JadwalController;
 use App\Http\Controllers\Laporan\LaporanController;
+use App\Http\Controllers\Guru\AbsensiController as GuruAbsensiController;
+use App\Http\Controllers\KetuaKelas\KetuaKelasController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,7 +104,7 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware(['role:guru,ketua_kelas'])->prefix('guru')->name('guru.')->group(function () {
         Route::get('/dashboard', [GuruController::class, 'dashboard'])->name('dashboard');
-        Route::get('/absensi/riwayat', [GuruController::class, 'riwayatAbsensi'])->name('absensi.riwayat');
+        Route::get('/absensi/riwayat', [GuruController::class, 'riwayatAbsensi'])->name('absensi.riwayat-list');
         Route::get('/absensi/{absensi}', [GuruController::class, 'detailAbsensi'])->name('absensi.detail');
 
         // Jadwal (placeholder)
@@ -110,14 +112,12 @@ Route::middleware('auth')->group(function () {
             return redirect()->route('guru.dashboard')->with('info', 'Fitur Jadwal sedang dalam pengembangan');
         })->name('jadwal.index');
 
-        // Absensi routes (placeholder)
-        Route::get('/absensi/qr', function() {
-            return redirect()->route('guru.dashboard')->with('info', 'Fitur QR Code sedang dalam pengembangan');
-        })->name('absensi.qr');
-
-        Route::get('/absensi/selfie', function() {
-            return redirect()->route('guru.dashboard')->with('info', 'Fitur Selfie sedang dalam pengembangan');
-        })->name('absensi.selfie');
+        // Absensi routes
+        Route::get('/absensi/qr', [GuruAbsensiController::class, 'qr'])->name('absensi.qr');
+        Route::get('/absensi/selfie', [GuruAbsensiController::class, 'selfie'])->name('absensi.selfie');
+        Route::post('/absensi/proses-qr', [GuruAbsensiController::class, 'prosesAbsensiQr'])->name('absensi.proses-qr');
+        Route::post('/absensi/proses-selfie', [GuruAbsensiController::class, 'prosesAbsensiSelfie'])->name('absensi.proses-selfie');
+        Route::get('/absensi/riwayat-hari-ini', [GuruAbsensiController::class, 'riwayat'])->name('absensi.riwayat');
 
         // Izin (placeholder)
         Route::get('/izin', function() {
@@ -250,20 +250,16 @@ Route::middleware('auth')->group(function () {
             return view('ketua-kelas.dashboard', $data);
         })->name('dashboard');
 
-        // Scan QR (placeholder)
-        Route::get('/scan-qr', function() {
-            return redirect()->route('ketua-kelas.dashboard')->with('info', 'Fitur Scan QR sedang dalam pengembangan');
-        })->name('scan-qr');
+        // Scan QR
+        Route::get('/scan-qr', [KetuaKelasController::class, 'scanQr'])->name('scan-qr');
+        Route::get('/riwayat-scan', [KetuaKelasController::class, 'riwayatScan'])->name('riwayat-scan');
+        Route::get('/statistik', [KetuaKelasController::class, 'statistik'])->name('statistik');
 
-        // Riwayat (placeholder)
-        Route::get('/riwayat', function() {
-            return redirect()->route('ketua-kelas.dashboard')->with('info', 'Fitur Riwayat sedang dalam pengembangan');
-        })->name('riwayat');
+        // Riwayat
+        Route::get('/riwayat', [KetuaKelasController::class, 'riwayat'])->name('riwayat');
 
-        // Jadwal (placeholder)
-        Route::get('/jadwal', function() {
-            return redirect()->route('ketua-kelas.dashboard')->with('info', 'Fitur Jadwal Kelas sedang dalam pengembangan');
-        })->name('jadwal');
+        // Jadwal
+        Route::get('/jadwal', [KetuaKelasController::class, 'jadwal'])->name('jadwal');
     });
 
     /*
