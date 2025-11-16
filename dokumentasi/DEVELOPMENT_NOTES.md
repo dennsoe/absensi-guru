@@ -1,9 +1,34 @@
 # CATATAN PENGEMBANGAN APLIKASI SIAG NEKAS - LARAVEL
 
 **Tanggal Diskusi:** 16 November 2025  
+**Tanggal Update Backend:** 16 Januari 2025  
 **Project:** SIAG NEKAS - Sistem Informasi Absensi Guru SMK Negeri Kasomalang  
 **Developer:** GitHub Copilot + User  
 **Sekolah:** SMK Negeri Kasomalang, Kabupaten Subang, Jawa Barat
+
+---
+
+## 🎯 STATUS PENGEMBANGAN
+
+### ✅ SELESAI (Backend - 100%)
+
+1. **Database Schema** - 23 tabel dengan relationships lengkap
+2. **Models** - 16 models dengan fillable, casts, relationships, scopes
+3. **Middleware** - 3 custom middleware (CheckRole, LogActivity, CheckAbsensiTime)
+4. **Controllers** - 11 controllers untuk semua role & fitur
+5. **Routes** - Complete routing dengan middleware protection
+6. **Authentication** - Username-based login dengan role-based redirect
+7. **Business Logic** - QR validation, GPS checking, keterlambatan, approval flow
+
+### 🔄 DALAM PROGRESS (Frontend - 0%)
+
+1. **Views/Blade Templates** - Belum dibuat
+2. **JavaScript QR Scanner** - Belum implementasi
+3. **Selfie Camera Capture** - Belum implementasi
+4. **GPS Geolocation** - Belum implementasi
+5. **PWA Setup** - Belum implementasi
+
+📖 **Dokumentasi Backend:** Lihat `BACKEND_IMPLEMENTATION.md` dan `ROUTES_REFERENCE.md`
 
 ---
 
@@ -13,27 +38,27 @@
 
 #### Backend
 
-- **Framework:** Laravel 12.x
-- **PHP Version:** 8.2+
-- **Database:** MySQL 8.0+
-- **Authentication:** Session-based (Laravel default)
+-   **Framework:** Laravel 12.x
+-   **PHP Version:** 8.2+
+-   **Database:** MySQL 8.0+
+-   **Authentication:** Session-based (Laravel default)
 
 #### Frontend
 
-- **CSS Framework:** Bootstrap 5.3 (Download & Install Local - BUKAN CDN)
-- **Custom CMS:** Ya, dibuat sendiri (tidak pakai template)
-- **Icons:** Bootstrap Icons
-- **Fonts:** Inter (Google Fonts)
-- **JavaScript:** Alpine.js 3.x untuk interactivity
-- **Charts:** Chart.js 4.x
-- **QR Code:** html5-qrcode library
-- **Build Tool:** Vite (Laravel default)
+-   **CSS Framework:** Bootstrap 5.3 (Download & Install Local - BUKAN CDN)
+-   **Custom CMS:** Ya, dibuat sendiri (tidak pakai template)
+-   **Icons:** Bootstrap Icons
+-   **Fonts:** Inter (Google Fonts)
+-   **JavaScript:** Alpine.js 3.x untuk interactivity
+-   **Charts:** Chart.js 4.x
+-   **QR Code:** html5-qrcode library
+-   **Build Tool:** Vite (Laravel default)
 
 #### PWA
 
-- **Service Worker:** Custom dengan Workbox
-- **Manifest:** Dynamic dari config
-- **Offline Support:** Ya, dengan fallback page
+-   **Service Worker:** Custom dengan Workbox
+-   **Manifest:** Dynamic dari config
+-   **Offline Support:** Ya, dengan fallback page
 
 ---
 
@@ -43,20 +68,20 @@
 
 ✅ **Bootstrap digunakan HANYA untuk:**
 
-- Grid system (container, row, col)
-- Utility classes (spacing, typography, flex)
-- Form components (form-control, form-select, dll)
-- Table components
-- Modal components
-- Alert/Toast components
+-   Grid system (container, row, col)
+-   Utility classes (spacing, typography, flex)
+-   Form components (form-control, form-select, dll)
+-   Table components
+-   Modal components
+-   Alert/Toast components
 
 ❌ **Bootstrap TIDAK digunakan untuk:**
 
-- Navbar (custom build)
-- Sidebar (custom build)
-- Cards (custom build dengan design sendiri)
-- Buttons (custom styling)
-- Background colors/gradients (tidak ada gradient, solid white/gray only)
+-   Navbar (custom build)
+-   Sidebar (custom build)
+-   Cards (custom build dengan design sendiri)
+-   Buttons (custom styling)
+-   Background colors/gradients (tidak ada gradient, solid white/gray only)
 
 ### Design System Principles
 
@@ -73,21 +98,21 @@ Danger: Red (#ef4444)
 
 #### Layout Strategy
 
-- **Desktop:** Sidebar + Top bar (untuk Admin, Kepala Sekolah, Kurikulum, Guru Piket)
-- **Mobile:** Top bar + Bottom navigation (untuk semua role, terutama Guru & Ketua Kelas)
-- **Responsive:** Mobile-first approach
-- **Consistency:** Desain 100% konsisten di semua halaman dan role
+-   **Desktop:** Sidebar + Top bar (untuk Admin, Kepala Sekolah, Kurikulum, Guru Piket)
+-   **Mobile:** Top bar + Bottom navigation (untuk semua role, terutama Guru & Ketua Kelas)
+-   **Responsive:** Mobile-first approach
+-   **Consistency:** Desain 100% konsisten di semua halaman dan role
 
 #### Role-Based Subtle Accents
 
 Setiap role punya aksen warna yang sangat subtle (hanya di top bar dan active state):
 
-- Admin: Blue
-- Guru: Green
-- Ketua Kelas: Purple
-- Guru Piket: Orange
-- Kepala Sekolah: Indigo
-- Kurikulum: Cyan
+-   Admin: Blue
+-   Guru: Green
+-   Ketua Kelas: Purple
+-   Guru Piket: Orange
+-   Kepala Sekolah: Indigo
+-   Kurikulum: Cyan
 
 **Tapi semua layout, component, spacing SAMA!**
 
@@ -583,47 +608,47 @@ siag-nekas/
 
 ### Phase 1: Foundation ✅
 
-- [x] Laravel project created
-- [x] Database schema designed (migrations created)
-- [x] Models with Eloquent relations created
-- [ ] Install Bootstrap locally
-- [ ] Setup Vite configuration
-- [ ] Create custom CSS files
+-   [x] Laravel project created
+-   [x] Database schema designed (migrations created)
+-   [x] Models with Eloquent relations created
+-   [ ] Install Bootstrap locally
+-   [ ] Setup Vite configuration
+-   [ ] Create custom CSS files
 
 ### Phase 2: Authentication & Layout
 
-- [ ] Multi-role login system
-- [ ] Custom navbar component
-- [ ] Custom sidebar component
-- [ ] Bottom navigation component
-- [ ] Master layouts (admin, mobile, auth)
-- [ ] Middleware for role-based access
+-   [ ] Multi-role login system
+-   [ ] Custom navbar component
+-   [ ] Custom sidebar component
+-   [ ] Bottom navigation component
+-   [ ] Master layouts (admin, mobile, auth)
+-   [ ] Middleware for role-based access
 
 ### Phase 3: Core Features
 
-- [ ] Dashboard per role
-- [ ] CRUD Master Data (Guru, Kelas, Mapel, Jadwal)
-- [ ] QR Code generation & scanning
-- [ ] Selfie capture & validation
-- [ ] GPS validation
-- [ ] Absensi workflow
+-   [ ] Dashboard per role
+-   [ ] CRUD Master Data (Guru, Kelas, Mapel, Jadwal)
+-   [ ] QR Code generation & scanning
+-   [ ] Selfie capture & validation
+-   [ ] GPS validation
+-   [ ] Absensi workflow
 
 ### Phase 4: Advanced Features
 
-- [ ] Approval workflow (Izin, Cuti, Absensi Manual)
-- [ ] Notification system (real-time polling)
-- [ ] Laporan & Export (Excel, PDF)
-- [ ] Settings management
-- [ ] Surat Peringatan otomatis
+-   [ ] Approval workflow (Izin, Cuti, Absensi Manual)
+-   [ ] Notification system (real-time polling)
+-   [ ] Laporan & Export (Excel, PDF)
+-   [ ] Settings management
+-   [ ] Surat Peringatan otomatis
 
 ### Phase 5: PWA & Polish
 
-- [ ] Service Worker implementation
-- [ ] Manifest.json dynamic
-- [ ] Push notification
-- [ ] Offline support
-- [ ] Performance optimization
-- [ ] UI/UX refinement
+-   [ ] Service Worker implementation
+-   [ ] Manifest.json dynamic
+-   [ ] Push notification
+-   [ ] Offline support
+-   [ ] Performance optimization
+-   [ ] UI/UX refinement
 
 ---
 
@@ -631,31 +656,31 @@ siag-nekas/
 
 ### Responsiveness
 
-- **Primary:** Mobile-first (Guru menggunakan HP untuk absensi)
-- **Secondary:** Desktop admin panel yang user-friendly
-- Semua component harus 100% responsive
+-   **Primary:** Mobile-first (Guru menggunakan HP untuk absensi)
+-   **Secondary:** Desktop admin panel yang user-friendly
+-   Semua component harus 100% responsive
 
 ### Consistency
 
-- Tidak boleh ada perbedaan desain antar halaman
-- Component reusable dengan Blade components
-- Design system yang ketat (variables.css)
+-   Tidak boleh ada perbedaan desain antar halaman
+-   Component reusable dengan Blade components
+-   Design system yang ketat (variables.css)
 
 ### Performance
 
-- Fast loading (< 3 detik)
-- Optimized images (selfie auto-compress)
-- Efficient database queries
-- Minimal JavaScript bundle
+-   Fast loading (< 3 detik)
+-   Optimized images (selfie auto-compress)
+-   Efficient database queries
+-   Minimal JavaScript bundle
 
 ### Security
 
-- CSRF protection
-- XSS prevention
-- SQL injection prevention (Eloquent ORM)
-- File upload validation
-- GPS spoofing detection (haversine formula)
-- QR code signature validation
+-   CSRF protection
+-   XSS prevention
+-   SQL injection prevention (Eloquent ORM)
+-   File upload validation
+-   GPS spoofing detection (haversine formula)
+-   QR code signature validation
 
 ---
 
@@ -681,17 +706,17 @@ siag-nekas/
 
 ### Toleransi Waktu
 
-- Bisa absen **30 menit sebelum** jam mengajar
-- Masih bisa absen **60 menit setelah** jam selesai
-- Toleransi terlambat: **15 menit** (configurable)
-- Status "terlambat" jika absen > 15 menit dari jam mulai
+-   Bisa absen **30 menit sebelum** jam mengajar
+-   Masih bisa absen **60 menit setelah** jam selesai
+-   Toleransi terlambat: **15 menit** (configurable)
+-   Status "terlambat" jika absen > 15 menit dari jam mulai
 
 ### GPS Validation
 
-- Sekolah latitude & longitude disimpan di settings
-- Radius: 200 meter (configurable)
-- Calculation: Haversine formula
-- Mode: Strict (wajib) atau Loose (optional)
+-   Sekolah latitude & longitude disimpan di settings
+-   Radius: 200 meter (configurable)
+-   Calculation: Haversine formula
+-   Mode: Strict (wajib) atau Loose (optional)
 
 ### Approval Workflow
 
@@ -703,19 +728,19 @@ Guru Pengganti → Kurikulum assign → Guru B terima → Kurikulum confirm
 
 ### Notification System
 
-- **Polling AJAX:** Setiap 30 detik
-- **15 menit sebelum mengajar:** Notif ke Guru
-- **10 menit belum absen:** Notif ke Guru Piket
-- **30 menit belum absen:** Notif ke Admin
-- **Multi-channel:** Web (default), Email (optional), WhatsApp (optional)
+-   **Polling AJAX:** Setiap 30 detik
+-   **15 menit sebelum mengajar:** Notif ke Guru
+-   **10 menit belum absen:** Notif ke Guru Piket
+-   **30 menit belum absen:** Notif ke Admin
+-   **Multi-channel:** Web (default), Email (optional), WhatsApp (optional)
 
 ### Surat Peringatan Otomatis
 
-- **SP1:** 3x alfa dalam 30 hari
-- **SP2:** 5x alfa dalam 30 hari
-- **SP3:** 7x alfa dalam 30 hari
-- Auto-generate PDF dengan template
-- Email notification ke guru & kepala sekolah
+-   **SP1:** 3x alfa dalam 30 hari
+-   **SP2:** 5x alfa dalam 30 hari
+-   **SP3:** 7x alfa dalam 30 hari
+-   Auto-generate PDF dengan template
+-   Email notification ke guru & kepala sekolah
 
 ---
 
@@ -749,11 +774,11 @@ Guru Pengganti → Kurikulum assign → Guru B terima → Kurikulum confirm
 
 ### Key Relationships
 
-- User → Guru (1:1)
-- Guru → JadwalMengajar (1:N)
-- JadwalMengajar → Absensi (1:N)
-- Guru → QrCode (1:N)
-- User → Notifikasi (1:N)
+-   User → Guru (1:1)
+-   Guru → JadwalMengajar (1:N)
+-   JadwalMengajar → Absensi (1:N)
+-   Guru → QrCode (1:N)
+-   User → Notifikasi (1:N)
 
 ### Settings Categories Structure
 
@@ -1075,25 +1100,25 @@ DATA_RETENTION_YEARS=5
 
 ```json
 {
-  "require": {
-    "php": "^8.2",
-    "laravel/framework": "^11.0",
-    "guzzlehttp/guzzle": "^7.8",
-    "simplesoftwareio/simple-qrcode": "^4.2",
-    "intervention/image": "^3.0",
-    "barryvdh/laravel-dompdf": "^2.0",
-    "maatwebsite/laravel-excel": "^3.1",
-    "spatie/laravel-permission": "^6.0",
-    "spatie/laravel-activitylog": "^4.0"
-  },
-  "require-dev": {
-    "laravel/pint": "^1.0",
-    "laravel/sail": "^1.26",
-    "mockery/mockery": "^1.6",
-    "nunomaduro/collision": "^8.0",
-    "phpunit/phpunit": "^11.0",
-    "fakerphp/faker": "^1.23"
-  }
+    "require": {
+        "php": "^8.2",
+        "laravel/framework": "^11.0",
+        "guzzlehttp/guzzle": "^7.8",
+        "simplesoftwareio/simple-qrcode": "^4.2",
+        "intervention/image": "^3.0",
+        "barryvdh/laravel-dompdf": "^2.0",
+        "maatwebsite/laravel-excel": "^3.1",
+        "spatie/laravel-permission": "^6.0",
+        "spatie/laravel-activitylog": "^4.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.0",
+        "laravel/sail": "^1.26",
+        "mockery/mockery": "^1.6",
+        "nunomaduro/collision": "^8.0",
+        "phpunit/phpunit": "^11.0",
+        "fakerphp/faker": "^1.23"
+    }
 }
 ```
 
@@ -1101,21 +1126,21 @@ DATA_RETENTION_YEARS=5
 
 ```json
 {
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.0.0",
-    "autoprefixer": "^10.4.17",
-    "axios": "^1.6.4",
-    "laravel-vite-plugin": "^1.0",
-    "postcss": "^8.4.33",
-    "vite": "^5.0"
-  },
-  "dependencies": {
-    "alpinejs": "^3.13.5",
-    "bootstrap": "^5.3.2",
-    "bootstrap-icons": "^1.11.3",
-    "chart.js": "^4.4.1",
-    "html5-qrcode": "^2.3.8"
-  }
+    "devDependencies": {
+        "@vitejs/plugin-vue": "^5.0.0",
+        "autoprefixer": "^10.4.17",
+        "axios": "^1.6.4",
+        "laravel-vite-plugin": "^1.0",
+        "postcss": "^8.4.33",
+        "vite": "^5.0"
+    },
+    "dependencies": {
+        "alpinejs": "^3.13.5",
+        "bootstrap": "^5.3.2",
+        "bootstrap-icons": "^1.11.3",
+        "chart.js": "^4.4.1",
+        "html5-qrcode": "^2.3.8"
+    }
 }
 ```
 
@@ -1374,38 +1399,38 @@ resources/views/components/
 
 ```css
 :root {
-  /* Colors - NO GRADIENT */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f8fafc;
-  --color-primary: #2563eb;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-danger: #ef4444;
+    /* Colors - NO GRADIENT */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8fafc;
+    --color-primary: #2563eb;
+    --color-success: #10b981;
+    --color-warning: #f59e0b;
+    --color-danger: #ef4444;
 
-  /* Spacing */
-  --spacing-xs: 0.5rem;
-  --spacing-sm: 0.75rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 1.5rem;
-  --spacing-xl: 2rem;
+    /* Spacing */
+    --spacing-xs: 0.5rem;
+    --spacing-sm: 0.75rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
 
-  /* Border Radius */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+    /* Border Radius */
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
 
-  /* Typography */
-  --font-family: "Inter", sans-serif;
-  --font-size-sm: 0.875rem;
-  --font-size-base: 1rem;
-  --font-size-lg: 1.125rem;
+    /* Typography */
+    --font-family: "Inter", sans-serif;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.125rem;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Shadows */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
 
-  /* Transitions */
-  --transition-base: 200ms ease;
+    /* Transitions */
+    --transition-base: 200ms ease;
 }
 ```
 
@@ -1541,26 +1566,26 @@ event(new SettingsUpdated($key, $value));
 
 ### Server Requirements
 
-- PHP 8.2+
-- MySQL 8.0+
-- Composer 2.x
-- Node.js 18+ (for build process)
-- GD/Imagick extension (for image processing)
+-   PHP 8.2+
+-   MySQL 8.0+
+-   Composer 2.x
+-   Node.js 18+ (for build process)
+-   GD/Imagick extension (for image processing)
 
 ### Hosting Options
 
 1. **Shared Hosting** (Budget)
-   - cPanel with SSH access
-   - PHP 8.2 support
-   - MySQL remote access
+    - cPanel with SSH access
+    - PHP 8.2 support
+    - MySQL remote access
 2. **VPS** (Recommended)
-   - Ubuntu 22.04 LTS
-   - LEMP stack
-   - SSL certificate (Let's Encrypt)
+    - Ubuntu 22.04 LTS
+    - LEMP stack
+    - SSL certificate (Let's Encrypt)
 3. **Cloud** (Scalable)
-   - AWS EC2 / DigitalOcean Droplet
-   - Load balancer (optional)
-   - RDS for database
+    - AWS EC2 / DigitalOcean Droplet
+    - Load balancer (optional)
+    - RDS for database
 
 ### Build Process
 
@@ -1582,29 +1607,29 @@ php artisan view:cache
 
 ### Before Implementation
 
-- [ ] Semua requirements clear
-- [ ] Design system approved
-- [ ] Database schema final
-- [ ] Color palette confirmed
+-   [ ] Semua requirements clear
+-   [ ] Design system approved
+-   [ ] Database schema final
+-   [ ] Color palette confirmed
 
 ### During Development
 
-- [ ] Code follows PSR-12
-- [ ] All routes have middleware
-- [ ] All inputs validated
-- [ ] All queries optimized
-- [ ] All images compressed
-- [ ] All sensitive data encrypted
+-   [ ] Code follows PSR-12
+-   [ ] All routes have middleware
+-   [ ] All inputs validated
+-   [ ] All queries optimized
+-   [ ] All images compressed
+-   [ ] All sensitive data encrypted
 
 ### Before Deployment
 
-- [ ] All features tested (manual)
-- [ ] Mobile responsive verified
-- [ ] PWA installable
-- [ ] Performance optimized
-- [ ] Security audit passed
-- [ ] Backup system working
-- [ ] Documentation complete
+-   [ ] All features tested (manual)
+-   [ ] Mobile responsive verified
+-   [ ] PWA installable
+-   [ ] Performance optimized
+-   [ ] Security audit passed
+-   [ ] Backup system working
+-   [ ] Documentation complete
 
 ---
 
@@ -1614,28 +1639,28 @@ php artisan view:cache
 
 1. **Guru (Primary User):**
 
-   - Proses absensi harus cepat (< 30 detik)
-   - UI simple, tidak banyak klik
-   - Notifikasi jelas dan tepat waktu
+    - Proses absensi harus cepat (< 30 detik)
+    - UI simple, tidak banyak klik
+    - Notifikasi jelas dan tepat waktu
 
 2. **Admin:**
 
-   - Dashboard informatif
-   - Approval workflow jelas
-   - Export laporan mudah
+    - Dashboard informatif
+    - Approval workflow jelas
+    - Export laporan mudah
 
 3. **Kepala Sekolah:**
-   - Analytics meaningful
-   - Executive summary readable
-   - Decision support data
+    - Analytics meaningful
+    - Executive summary readable
+    - Decision support data
 
 ### Success Metrics
 
-- 95%+ guru sukses absen mandiri (tanpa bantuan)
-- < 5% error rate (QR scan, GPS validation)
-- < 3 detik loading time (homepage)
-- 100% mobile responsive
-- 0 critical security issues
+-   95%+ guru sukses absen mandiri (tanpa bantuan)
+-   < 5% error rate (QR scan, GPS validation)
+-   < 3 detik loading time (homepage)
+-   100% mobile responsive
+-   0 critical security issues
 
 ---
 
@@ -1643,14 +1668,14 @@ php artisan view:cache
 
 **16 November 2025:**
 
-- Initial discussion & requirement gathering
-- Technology stack decided
-- Design system created
-- Laravel structure planned
-- Custom CMS approach confirmed
-- Bootstrap local installation confirmed (NOT CDN)
-- No gradient backgrounds (solid white/gray only)
-- Consistency requirement emphasized
+-   Initial discussion & requirement gathering
+-   Technology stack decided
+-   Design system created
+-   Laravel structure planned
+-   Custom CMS approach confirmed
+-   Bootstrap local installation confirmed (NOT CDN)
+-   No gradient backgrounds (solid white/gray only)
+-   Consistency requirement emphasized
 
 ---
 

@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Middleware Aliases untuk Route
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+            'log.activity' => \App\Http\Middleware\LogActivity::class,
+            'absensi.time' => \App\Http\Middleware\CheckAbsensiTime::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
