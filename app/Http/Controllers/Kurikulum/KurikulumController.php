@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Kurikulum;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{JadwalMengajar, Guru, Kelas, MataPelajaran};
+use App\Models\{JadwalMengajar, Guru, Kelas, MataPelajaran, GuruPengganti, IzinCuti};
 use Illuminate\Support\Facades\DB;
 
 class KurikulumController extends Controller
@@ -14,33 +14,64 @@ class KurikulumController extends Controller
      */
     public function dashboard()
     {
-        $data = [
-            'total_jadwal_aktif' => JadwalMengajar::where('status', 'aktif')->count(),
-            'total_kelas' => Kelas::count(),
-            'total_mapel' => MataPelajaran::count(),
-            'jadwal_konflik' => $this->getJadwalKonflik(),
-            'guru_tanpa_jadwal' => Guru::whereDoesntHave('jadwalMengajar', function($q) {
-                                       $q->where('status', 'aktif');
-                                   })
-                                   ->where('status', 'aktif')
-                                   ->get(),
+        $hari_ini = now()->locale('id')->dayName;
+
+        // Total jadwal hari ini
+        $total_jadwal_hari_ini = JadwalMengajar::where('hari', $hari_ini)
+                                                ->where('status', 'aktif')
+                                                ->count();
+
+        // Jadwal yang perlu pengganti (guru izin/cuti)
+        $perlu_pengganti = JadwalMengajar::where('hari', $hari_ini)
+            ->where('status', 'aktif')
+            ->whereHas('guru.izinCuti', function($q) {
+                $q->whereDate('tanggal_mulai', '<=', today())
+                  ->whereDate('tanggal_selesai', '>=', today())
+                  ->where('status', 'approved');
+            })
+            ->count();
+
+        // Konflik jadwal (guru/kelas double booking)
+        $konflik_jadwal = 0; // Placeholder
+
+        // Total guru
+        $total_guru = Guru::count();
+
+        // Jadwal hari ini lengkap
+        $jadwal_hari_ini = JadwalMengajar::where('hari', $hari_ini)
+                                          ->where('status', 'aktif')
+                                          ->with(['guru', 'kelas', 'mataPelajaran', 'guruPengganti'])
+                                          ->orderBy('jam_mulai')
+                                          ->get();
+
+        // Jadwal perlu pengganti detail
+        $jadwal_perlu_pengganti = JadwalMengajar::where('hari', $hari_ini)
+            ->where('status', 'aktif')
+            ->whereHas('guru.izinCuti', function($q) {
+                $q->whereDate('tanggal_mulai', '<=', today())
+                  ->whereDate('tanggal_selesai', '>=', today())
+                  ->where('status', 'approved');
+            })
+            ->with(['guru', 'kelas', 'mataPelajaran', 'guruPengganti'])
+            ->get();
+
+        // Statistik minggu ini
+        $stat_minggu_ini = [
+            'total_jadwal' => JadwalMengajar::where('status', 'aktif')->count(),
+            'total_pengganti' => GuruPengganti::whereBetween('tanggal', [now()->startOfWeek(), now()->endOfWeek()])->count(),
+            'total_konflik' => 0,
+            'jadwal_berjalan' => JadwalMengajar::where('status', 'aktif')->count(),
         ];
 
-        return view('kurikulum.dashboard', $data);
-    }
-
-    /**
-     * Deteksi jadwal yang konflik (guru mengajar di waktu sama)
-     */
-    private function getJadwalKonflik()
-    {
-        return JadwalMengajar::select('guru_id', 'hari', 'jam_mulai', 'jam_selesai')
-                            ->selectRaw('COUNT(*) as jumlah')
-                            ->where('status', 'aktif')
-                            ->groupBy('guru_id', 'hari', 'jam_mulai', 'jam_selesai')
-                            ->having('jumlah', '>', 1)
-                            ->with('guru')
-                            ->get();
+        return view('kurikulum.dashboard', compact(
+            'total_jadwal_hari_ini',
+            'perlu_pengganti',
+            'konflik_jadwal',
+            'total_guru',
+            'jadwal_hari_ini',
+            'jadwal_perlu_pengganti',
+            'stat_minggu_ini'
+        ));
     }
 
     /**

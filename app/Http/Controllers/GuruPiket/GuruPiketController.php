@@ -14,29 +14,54 @@ class GuruPiketController extends Controller
      */
     public function dashboard()
     {
-        $data = [
-            'guru_hadir' => Absensi::whereDate('tanggal', today())
-                                   ->where('status_kehadiran', 'hadir')
-                                   ->with('guru')
-                                   ->get(),
-            'guru_belum_absen' => Guru::whereDoesntHave('absensi', function($q) {
-                                       $q->whereDate('tanggal', today());
-                                   })
-                                   ->where('status', 'aktif')
-                                   ->get(),
-            'guru_terlambat' => Absensi::whereDate('tanggal', today())
-                                       ->where('status_keterlambatan', 'terlambat')
-                                       ->with('guru')
-                                       ->get(),
-            'guru_izin' => IzinCuti::whereDate('tanggal_mulai', '<=', today())
-                                   ->whereDate('tanggal_selesai', '>=', today())
-                                   ->where('status', 'disetujui')
-                                   ->with('guru')
-                                   ->get(),
-            'total_guru' => Guru::where('status', 'aktif')->count(),
-        ];
+        // Get hari ini
+        $hari_ini = now()->locale('id')->dayName;
 
-        return view('piket.dashboard', $data);
+        // Jadwal hari ini
+        $jadwal_hari_ini = JadwalMengajar::where('hari', $hari_ini)
+                                        ->where('status', 'aktif')
+                                        ->with(['guru', 'kelas', 'mataPelajaran'])
+                                        ->orderBy('jam_mulai')
+                                        ->get();
+
+        // Count statistics
+        $guru_hadir = Absensi::whereDate('tanggal', today())
+                             ->where('status_kehadiran', 'hadir')
+                             ->count();
+
+        $guru_terlambat = Absensi::whereDate('tanggal', today())
+                                 ->where('status_kehadiran', 'terlambat')
+                                 ->count();
+
+        $guru_belum_hadir = $jadwal_hari_ini->count() - Absensi::whereDate('tanggal', today())
+                                                                ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+                                                                ->count();
+
+        $total_guru_mengajar = $jadwal_hari_ini->count();
+
+        // Alert: guru belum absen 10 menit before jam mengajar
+        $waktu_sekarang = now();
+        $guru_belum_absen_alert = $jadwal_hari_ini->filter(function($jadwal) use ($waktu_sekarang) {
+            $jam_mengajar = \Carbon\Carbon::parse($jadwal->jam_mulai);
+            $batas_alert = $jam_mengajar->subMinutes(10);
+
+            if ($waktu_sekarang >= $batas_alert && $waktu_sekarang <= $jam_mengajar) {
+                $absensi = $jadwal->absensi()->whereDate('tanggal', today())->first();
+                return !$absensi;
+            }
+            return false;
+        });
+
+        $data = compact(
+            'jadwal_hari_ini',
+            'guru_hadir',
+            'guru_terlambat',
+            'guru_belum_hadir',
+            'total_guru_mengajar',
+            'guru_belum_absen_alert'
+        );
+
+        return view('guru-piket.dashboard', $data);
     }
 
     /**
