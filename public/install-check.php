@@ -18,17 +18,17 @@ $checks = [
 
 // Try to create directories if not exist
 if (!is_dir(__DIR__ . '/uploads')) {
-    @mkdir(__DIR__ . '/uploads', 0755, true);
+@mkdir(__DIR__ . '/uploads', 0755, true);
     $checks['uploads'] = is_writable(__DIR__ . '/uploads');
 }
 
 if (!is_dir(__DIR__ . '/../logs')) {
-    @mkdir(__DIR__ . '/../logs', 0755, true);
+@mkdir(__DIR__ . '/../logs', 0755, true);
     $checks['logs'] = is_writable(__DIR__ . '/../logs');
 }
 
 if (!is_dir(__DIR__ . '/../backup')) {
-    @mkdir(__DIR__ . '/../backup', 0755, true);
+@mkdir(__DIR__ . '/../backup', 0755, true);
     $checks['backup'] = is_writable(__DIR__ . '/../backup');
 }
 

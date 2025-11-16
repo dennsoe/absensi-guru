@@ -109,13 +109,19 @@ class Router {
         // Remove query string
         $requestUri = strtok($requestUri, '?');
         
-        // Remove base path dari URI
-        if (!empty($this->basePath)) {
+        // Remove base path dari URI jika ada
+        // Untuk XAMPP subfolder: /absen-guru/login -> /login
+        if (!empty($this->basePath) && strpos($requestUri, $this->basePath) === 0) {
             $requestUri = substr($requestUri, strlen($this->basePath));
         }
         
         // Normalize URI
         $requestUri = $this->normalizePath($requestUri);
+        
+        // Debug logging (hanya di development)
+        if (defined('DEBUG_MODE') && DEBUG_MODE) {
+            error_log("Router Debug - Method: {$requestMethod}, URI: {$requestUri}, Base: {$this->basePath}");
+        }
         
         // Cari matching route
         foreach ($this->routes as $route) {

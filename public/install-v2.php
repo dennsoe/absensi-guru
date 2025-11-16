@@ -200,12 +200,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.875rem 1rem;
+            padding: 1rem;
             border: 1px solid var(--gray-200);
             border-radius: 8px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             transition: all 0.2s;
-            min-height: 52px;
         }
 
         .check-item:hover {
@@ -229,28 +228,14 @@
             gap: 0.75rem;
             color: var(--gray-700);
             font-size: 0.9375rem;
-            line-height: 1.4;
-            flex: 1;
         }
 
         .check-item-icon {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            font-size: 18px;
-            color: var(--gray-600);
-        }
-
-        .check-item-status {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            min-width: 24px;
-            margin-left: auto;
         }
 
         .form-label {
@@ -458,7 +443,7 @@
                             </div>
                             <span>PHP Version (≥ 7.4)</span>
                         </div>
-                        <div class="check-item-status" id="check-php"></div>
+                        <span id="check-php"></span>
                     </div>
 
                     <div class="check-item">
@@ -468,7 +453,7 @@
                             </div>
                             <span>PDO Extension</span>
                         </div>
-                        <div class="check-item-status" id="check-pdo"></div>
+                        <span id="check-pdo"></span>
                     </div>
 
                     <div class="check-item">
@@ -478,7 +463,7 @@
                             </div>
                             <span>PDO MySQL Driver</span>
                         </div>
-                        <div class="check-item-status" id="check-pdo-mysql"></div>
+                        <span id="check-pdo-mysql"></span>
                     </div>
 
                     <div class="check-item">
@@ -488,7 +473,7 @@
                             </div>
                             <span>Writable: /public/uploads/</span>
                         </div>
-                        <div class="check-item-status" id="check-uploads"></div>
+                        <span id="check-uploads"></span>
                     </div>
 
                     <div class="check-item">
@@ -498,7 +483,7 @@
                             </div>
                             <span>Writable: /logs/</span>
                         </div>
-                        <div class="check-item-status" id="check-logs"></div>
+                        <span id="check-logs"></span>
                     </div>
 
                     <div class="check-item">
@@ -508,9 +493,10 @@
                             </div>
                             <span>Writable: /backup/</span>
                         </div>
-                        <div class="check-item-status" id="check-backup"></div>
+                        <span id="check-backup"></span>
                     </div>
                 </div>
+
                 <div class="mt-4 d-flex gap-2">
                     <button class="btn btn-primary" onclick="nextStep(2)">
                         Lanjutkan
@@ -674,7 +660,7 @@
                 </div>
 
                 <div class="mt-4">
-                    <a href="/absen-guru/login" class="btn btn-primary btn-lg">
+                    <a href="../login" class="btn btn-primary btn-lg">
                         <i class="bi bi-box-arrow-in-right me-2"></i>
                         Login ke Sistem
                     </a>
@@ -821,7 +807,7 @@
         function dropAndImport() {
             if (!confirm(
                     'PERINGATAN!\n\nIni akan menghapus SEMUA tabel dan data di database!\nApakah Anda yakin ingin melanjutkan?'
-                )) {
+                    )) {
                 return;
             }
 

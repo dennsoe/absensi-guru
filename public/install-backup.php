@@ -36,6 +36,12 @@
             color: var(--gray-900);
         }
 
+        .installer-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
         .installer-header {
             background: white;
             border-bottom: 1px solid var(--gray-200);
@@ -72,9 +78,14 @@
         }
 
         .installer-container {
-            max-width: 800px;
-            margin: 2rem auto;
-            padding: 0 1rem;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .progress-container {
@@ -82,7 +93,9 @@
             padding: 1.5rem;
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 1.5rem;
+            margin-bottom: 0;
+            width: 100%;
+            max-width: 720px;
         }
 
         .progress-steps {
@@ -156,7 +169,8 @@
             border-radius: 12px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             overflow: hidden;
-            margin-bottom: 1.5rem;
+            width: 100%;
+            max-width: 720px;
         }
 
         .card-header {
@@ -200,12 +214,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 0.875rem 1rem;
+            padding: 1rem;
             border: 1px solid var(--gray-200);
             border-radius: 8px;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.75rem;
             transition: all 0.2s;
-            min-height: 52px;
         }
 
         .check-item:hover {
@@ -229,28 +242,14 @@
             gap: 0.75rem;
             color: var(--gray-700);
             font-size: 0.9375rem;
-            line-height: 1.4;
-            flex: 1;
         }
 
         .check-item-icon {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            flex-shrink: 0;
-            font-size: 18px;
-            color: var(--gray-600);
-        }
-
-        .check-item-status {
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            flex-shrink: 0;
-            min-width: 24px;
-            margin-left: auto;
         }
 
         .form-label {
@@ -374,7 +373,6 @@
             text-align: center;
             color: var(--gray-600);
             font-size: 0.875rem;
-            margin-top: 3rem;
         }
 
         <blade media|%20(max-width%3A%20768px)%20%7B>.installer-header {
@@ -390,7 +388,7 @@
         }
 
         .installer-container {
-            padding: 0 0.5rem;
+            padding: 1rem;
         }
 
         .card-header,
@@ -402,290 +400,293 @@
 </head>
 
 <body>
-    <!-- Header -->
-    <div class="installer-header">
-        <div class="installer-logo">
-            <i class="bi bi-gear-fill"></i>
-        </div>
-        <h1 class="installer-title">Sistem Absensi Guru</h1>
-        <p class="installer-subtitle">Installer v3.5 - Progressive Web App Edition</p>
-    </div>
-
-    <!-- Main Content -->
-    <div class="installer-container">
-        <!-- Progress Steps -->
-        <div class="progress-container">
-            <div class="progress-steps">
-                <div class="progress-step active" id="progress-step-1">
-                    <div class="progress-step-circle">1</div>
-                    <div class="progress-step-label">Pemeriksaan</div>
-                </div>
-                <div class="progress-step" id="progress-step-2">
-                    <div class="progress-step-circle">2</div>
-                    <div class="progress-step-label">Database</div>
-                </div>
-                <div class="progress-step" id="progress-step-3">
-                    <div class="progress-step-circle">3</div>
-                    <div class="progress-step-label">Import</div>
-                </div>
-                <div class="progress-step" id="progress-step-4">
-                    <div class="progress-step-circle">4</div>
-                    <div class="progress-step-label">Admin</div>
-                </div>
-                <div class="progress-step" id="progress-step-5">
-                    <div class="progress-step-circle">5</div>
-                    <div class="progress-step-label">Selesai</div>
-                </div>
+    <div class="installer-wrapper">
+        <!-- Header -->
+        <div class="installer-header">
+            <div class="installer-logo">
+                <i class="bi bi-gear-fill"></i>
             </div>
-            <div class="progress-bar-custom">
-                <div class="progress-bar-fill" id="progressBar" style="width: 20%"></div>
-            </div>
+            <h1 class="installer-title">Sistem Absensi Guru</h1>
+            <p class="installer-subtitle">Installer v3.5 - Progressive Web App Edition</p>
         </div>
 
-        <!-- Step 1: System Check -->
-        <div class="card step active" id="step1">
-            <div class="card-header">
-                <h5><i class="bi bi-shield-check me-2"></i>Pemeriksaan Sistem</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">Memeriksa persyaratan sistem...</p>
-
-                <div id="requirementChecks">
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-code-square"></i>
-                            </div>
-                            <span>PHP Version (≥ 7.4)</span>
-                        </div>
-                        <div class="check-item-status" id="check-php"></div>
+        <!-- Main Content -->
+        <div class="installer-container">
+            <!-- Progress Steps -->
+            <div class="progress-container">
+                <div class="progress-steps">
+                    <div class="progress-step active" id="progress-step-1">
+                        <div class="progress-step-circle">1</div>
+                        <div class="progress-step-label">Pemeriksaan</div>
                     </div>
-
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-plugin"></i>
-                            </div>
-                            <span>PDO Extension</span>
-                        </div>
-                        <div class="check-item-status" id="check-pdo"></div>
+                    <div class="progress-step" id="progress-step-2">
+                        <div class="progress-step-circle">2</div>
+                        <div class="progress-step-label">Database</div>
                     </div>
-
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-database"></i>
-                            </div>
-                            <span>PDO MySQL Driver</span>
-                        </div>
-                        <div class="check-item-status" id="check-pdo-mysql"></div>
+                    <div class="progress-step" id="progress-step-3">
+                        <div class="progress-step-circle">3</div>
+                        <div class="progress-step-label">Import</div>
                     </div>
-
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-folder2"></i>
-                            </div>
-                            <span>Writable: /public/uploads/</span>
-                        </div>
-                        <div class="check-item-status" id="check-uploads"></div>
+                    <div class="progress-step" id="progress-step-4">
+                        <div class="progress-step-circle">4</div>
+                        <div class="progress-step-label">Admin</div>
                     </div>
-
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-folder2"></i>
-                            </div>
-                            <span>Writable: /logs/</span>
-                        </div>
-                        <div class="check-item-status" id="check-logs"></div>
-                    </div>
-
-                    <div class="check-item">
-                        <div class="check-item-label">
-                            <div class="check-item-icon">
-                                <i class="bi bi-folder2"></i>
-                            </div>
-                            <span>Writable: /backup/</span>
-                        </div>
-                        <div class="check-item-status" id="check-backup"></div>
+                    <div class="progress-step" id="progress-step-5">
+                        <div class="progress-step-circle">5</div>
+                        <div class="progress-step-label">Selesai</div>
                     </div>
                 </div>
-                <div class="mt-4 d-flex gap-2">
-                    <button class="btn btn-primary" onclick="nextStep(2)">
-                        Lanjutkan
-                        <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
+                <div class="progress-bar-custom">
+                    <div class="progress-bar-fill" id="progressBar" style="width: 20%"></div>
                 </div>
             </div>
-        </div>
 
-        <!-- Step 2: Database Config -->
-        <div class="card step" id="step2">
-            <div class="card-header">
-                <h5><i class="bi bi-database me-2"></i>Konfigurasi Database</h5>
-            </div>
-            <div class="card-body">
-                <form id="dbForm">
-                    <div class="row">
-                        <div class="col-md-8 mb-3">
-                            <label class="form-label">Database Host</label>
-                            <input type="text" class="form-control" name="db_host" value="localhost" required>
+            <!-- Step 1: System Check -->
+            <div class="card step active" id="step1">
+                <div class="card-header">
+                    <h5><i class="bi bi-shield-check me-2"></i>Pemeriksaan Sistem</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Memeriksa persyaratan sistem...</p>
+
+                    <div id="requirementChecks">
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-code-square"></i>
+                                </div>
+                                <span>PHP Version (≥ 7.4)</span>
+                            </div>
+                            <span id="check-php"></span>
                         </div>
-                        <div class="col-md-4 mb-3">
-                            <label class="form-label">Port</label>
-                            <input type="text" class="form-control" name="db_port" value="3306" required>
+
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-plugin"></i>
+                                </div>
+                                <span>PDO Extension</span>
+                            </div>
+                            <span id="check-pdo"></span>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-database"></i>
+                                </div>
+                                <span>PDO MySQL Driver</span>
+                            </div>
+                            <span id="check-pdo-mysql"></span>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-folder2"></i>
+                                </div>
+                                <span>Writable: /public/uploads/</span>
+                            </div>
+                            <span id="check-uploads"></span>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-folder2"></i>
+                                </div>
+                                <span>Writable: /logs/</span>
+                            </div>
+                            <span id="check-logs"></span>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-item-label">
+                                <div class="check-item-icon">
+                                    <i class="bi bi-folder2"></i>
+                                </div>
+                                <span>Writable: /backup/</span>
+                            </div>
+                            <span id="check-backup"></span>
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Database Name</label>
-                        <input type="text" class="form-control" name="db_name" value="absensi_guru" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Username</label>
-                        <input type="text" class="form-control" name="db_user" value="root" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="db_pass"
-                            placeholder="Kosongkan jika tidak ada password">
-                    </div>
-
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Penting:</strong> Pastikan database sudah dibuat terlebih dahulu melalui phpMyAdmin atau
-                        MySQL console.
-                    </div>
-
-                    <div id="dbTestResult" class="mb-3"></div>
-
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
-                            <i class="bi bi-arrow-left me-2"></i>
-                            Kembali
-                        </button>
-                        <button type="button" class="btn btn-primary" onclick="testDatabase()">
-                            <i class="bi bi-plug me-2"></i>
-                            Test Koneksi
-                        </button>
-                        <button type="button" class="btn btn-success ms-auto" onclick="nextStep(3)">
+                    <div class="mt-4 d-flex gap-2">
+                        <button class="btn btn-primary" onclick="nextStep(2)">
                             Lanjutkan
                             <i class="bi bi-arrow-right ms-2"></i>
                         </button>
                     </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Step 3: Import Database -->
-        <div class="card step" id="step3">
-            <div class="card-header">
-                <h5><i class="bi bi-download me-2"></i>Import Database</h5>
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">Import struktur tabel dan data awal ke database...</p>
-
-                <div class="alert alert-warning">
-                    <i class="bi bi-exclamation-triangle me-2"></i>
-                    <strong>Perhatian!</strong> Proses ini akan membuat tabel dan data awal. Pastikan database kosong
-                    atau backup data lama Anda.
-                </div>
-
-                <div id="importProgress" style="display: none;" class="text-center py-3">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">Loading...</span>
-                    </div>
-                    <p class="mt-2 text-muted">Mengimport database...</p>
-                </div>
-
-                <div id="importResult"></div>
-
-                <div class="mt-4 d-flex gap-2">
-                    <button class="btn btn-secondary" onclick="prevStep(2)">
-                        <i class="bi bi-arrow-left me-2"></i>
-                        Kembali
-                    </button>
-                    <button class="btn btn-primary" onclick="importDatabase()">
-                        <i class="bi bi-download me-2"></i>
-                        Import Database
-                    </button>
                 </div>
             </div>
-        </div>
 
-        <!-- Step 4: Admin Setup -->
-        <div class="card step" id="step4">
-            <div class="card-header">
-                <h5><i class="bi bi-person-badge me-2"></i>Setup Administrator</h5>
+            <!-- Step 2: Database Config -->
+            <div class="card step" id="step2">
+                <div class="card-header">
+                    <h5><i class="bi bi-database me-2"></i>Konfigurasi Database</h5>
+                </div>
+                <div class="card-body">
+                    <form id="dbForm">
+                        <div class="row">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Database Host</label>
+                                <input type="text" class="form-control" name="db_host" value="localhost" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Port</label>
+                                <input type="text" class="form-control" name="db_port" value="3306" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Database Name</label>
+                            <input type="text" class="form-control" name="db_name" value="absensi_guru" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <input type="text" class="form-control" name="db_user" value="root" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="db_pass"
+                                placeholder="Kosongkan jika tidak ada password">
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            <strong>Penting:</strong> Pastikan database sudah dibuat terlebih dahulu melalui phpMyAdmin
+                            atau MySQL console.
+                        </div>
+
+                        <div id="dbTestResult" class="mb-3"></div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(1)">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Kembali
+                            </button>
+                            <button type="button" class="btn btn-primary" onclick="testDatabase()">
+                                <i class="bi bi-plug me-2"></i>
+                                Test Koneksi
+                            </button>
+                            <button type="button" class="btn btn-success ms-auto" onclick="nextStep(3)">
+                                Lanjutkan
+                                <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="card-body">
-                <p class="text-muted mb-3">Buat akun administrator untuk mengakses sistem.</p>
 
-                <form id="adminForm">
-                    <div class="mb-3">
-                        <label class="form-label">Username Admin</label>
-                        <input type="text" class="form-control" name="admin_username" value="admin" required>
+            <!-- Step 3: Import Database -->
+            <div class="card step" id="step3">
+                <div class="card-header">
+                    <h5><i class="bi bi-download me-2"></i>Import Database</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Import struktur tabel dan data awal ke database...</p>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle me-2"></i>
+                        <strong>Perhatian!</strong> Proses ini akan membuat tabel dan data awal. Pastikan database
+                        kosong atau backup data lama Anda.
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Password</label>
-                        <input type="password" class="form-control" name="admin_password"
-                            placeholder="Minimal 8 karakter" required>
+                    <div id="importProgress" style="display: none;" class="text-center py-3">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2 text-muted">Mengimport database...</p>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Konfirmasi Password</label>
-                        <input type="password" class="form-control" name="admin_password_confirm"
-                            placeholder="Ulangi password" required>
-                    </div>
+                    <div id="importResult"></div>
 
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                    <div class="mt-4 d-flex gap-2">
+                        <button class="btn btn-secondary" onclick="prevStep(2)">
                             <i class="bi bi-arrow-left me-2"></i>
                             Kembali
                         </button>
-                        <button type="button" class="btn btn-success ms-auto" onclick="createAdmin()">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Selesaikan Instalasi
+                        <button class="btn btn-primary" onclick="importDatabase()">
+                            <i class="bi bi-download me-2"></i>
+                            Import Database
                         </button>
                     </div>
-                </form>
+                </div>
+            </div>
+
+            <!-- Step 4: Admin Setup -->
+            <div class="card step" id="step4">
+                <div class="card-header">
+                    <h5><i class="bi bi-person-badge me-2"></i>Setup Administrator</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-3">Buat akun administrator untuk mengakses sistem.</p>
+
+                    <form id="adminForm">
+                        <div class="mb-3">
+                            <label class="form-label">Username Admin</label>
+                            <input type="text" class="form-control" name="admin_username" value="admin" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control" name="admin_password"
+                                placeholder="Minimal 8 karakter" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Konfirmasi Password</label>
+                            <input type="password" class="form-control" name="admin_password_confirm"
+                                placeholder="Ulangi password" required>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                                <i class="bi bi-arrow-left me-2"></i>
+                                Kembali
+                            </button>
+                            <button type="button" class="btn btn-success ms-auto" onclick="createAdmin()">
+                                <i class="bi bi-check-circle me-2"></i>
+                                Selesaikan Instalasi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Step 5: Finish -->
+            <div class="card step" id="step5">
+                <div class="card-header">
+                    <h5><i class="bi bi-check-circle-fill me-2"></i>Instalasi Selesai!</h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-check-circle-fill success-icon"></i>
+                    <h3 class="mt-4 mb-2">Instalasi Berhasil!</h3>
+                    <p class="text-muted mb-4">Sistem Absensi Guru siap digunakan</p>
+
+                    <div class="alert alert-warning">
+                        <strong><i class="bi bi-shield-exclamation me-2"></i>Keamanan:</strong>
+                        Segera hapus semua file installer untuk keamanan sistem!
+                        <br><small class="mt-2 d-block">Files: install.php, install-check.php, install-test-db.php,
+                            install-import-db.php, install-drop-import.php, install-create-admin.php</small>
+                    </div>
+
+                    <div class="mt-4">
+                        <a href="../login" class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>
+                            Login ke Sistem
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Step 5: Finish -->
-        <div class="card step" id="step5">
-            <div class="card-header">
-                <h5><i class="bi bi-check-circle-fill me-2"></i>Instalasi Selesai!</h5>
-            </div>
-            <div class="card-body text-center py-5">
-                <i class="bi bi-check-circle-fill success-icon"></i>
-                <h3 class="mt-4 mb-2">Instalasi Berhasil!</h3>
-                <p class="text-muted mb-4">Sistem Absensi Guru siap digunakan</p>
-
-                <div class="alert alert-warning">
-                    <strong><i class="bi bi-shield-exclamation me-2"></i>Keamanan:</strong>
-                    Segera hapus semua file installer untuk keamanan sistem!
-                    <br><small class="mt-2 d-block">Files: install.php, install-check.php, install-test-db.php,
-                        install-import-db.php, install-drop-import.php, install-create-admin.php</small>
-                </div>
-
-                <div class="mt-4">
-                    <a href="/absen-guru/login" class="btn btn-primary btn-lg">
-                        <i class="bi bi-box-arrow-in-right me-2"></i>
-                        Login ke Sistem
-                    </a>
-                </div>
-            </div>
+        <!-- Footer -->
+        <div class="installer-footer">
+            <p>&copy; <?= date('Y') ?> Sistem Absensi Guru v3.5 - Progressive Web App Edition</p>
         </div>
-    </div>
-
-    <!-- Footer -->
-    <div class="installer-footer">
-        <p>&copy; <?= date('Y') ?> Sistem Absensi Guru v3.5 - Progressive Web App Edition</p>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -821,7 +822,7 @@
         function dropAndImport() {
             if (!confirm(
                     'PERINGATAN!\n\nIni akan menghapus SEMUA tabel dan data di database!\nApakah Anda yakin ingin melanjutkan?'
-                )) {
+                    )) {
                 return;
             }
 

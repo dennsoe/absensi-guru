@@ -1,8 +1,9 @@
 <IfModule mod_rewrite.c>
     RewriteEngine On
     
-    # Get base path dynamically
-    RewriteBase /
+    # Set RewriteBase untuk subfolder XAMPP
+    # Ubah sesuai dengan nama folder Anda
+    RewriteBase /absen-guru/
     
     # Jika file atau folder exists, tampilkan langsung
     RewriteCond %{REQUEST_FILENAME} !-f

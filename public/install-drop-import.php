@@ -1,6 +1,6 @@
 <?php
 /**
- * Installer - Import Database
+ * Installer - Drop All Tables & Re-import
  */
 
 header('Content-Type: application/json');
@@ -35,22 +35,22 @@ try {
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
     ]);
     
-    // Check if tables already exist
+    // Disable foreign key checks
+    $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+    
+    // Get all tables
     $stmt = $pdo->query("SHOW TABLES");
     $tables = $stmt->fetchAll(PDO::FETCH_COLUMN);
     
-    if (count($tables) > 0) {
-        // Database not empty - ask user via response
-        echo json_encode([
-            'success' => false,
-            'message' => 'Database tidak kosong! Ditemukan ' . count($tables) . ' tabel. Silakan gunakan database kosong atau hapus semua tabel terlebih dahulu.',
-            'tables' => $tables,
-            'drop_option' => true
-        ]);
-        exit;
+    // Drop all tables
+    foreach ($tables as $table) {
+        $pdo->exec("DROP TABLE IF EXISTS `{$table}`");
     }
     
-    // Read SQL files
+    // Re-enable foreign key checks
+    $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+    
+    // Now import the SQL files
     $sqlPart1 = file_get_contents(__DIR__ . '/../database/absensi_guru_part1.sql');
     $sqlPart2 = file_get_contents(__DIR__ . '/../database/absensi_guru_part2.sql');
     
@@ -126,12 +126,22 @@ function getDB() {
     
     echo json_encode([
         'success' => true,
-        'message' => 'Database berhasil diimport! 17 tabel dibuat.'
+        'message' => 'Database berhasil di-reset dan diimport! 17 tabel dibuat.',
+        'dropped' => count($tables)
     ]);
     
 } catch (Exception $e) {
+    // Try to re-enable foreign key checks if possible
+    try {
+        if (isset($pdo) && $pdo instanceof PDO) {
+            $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
+        }
+    } catch (Exception $fkException) {
+        // Ignore FK errors
+    }
+    
     echo json_encode([
         'success' => false,
-        'message' => 'Import gagal: ' . $e->getMessage()
+        'message' => 'Reset & import gagal: ' . $e->getMessage()
     ]);
 }

@@ -26,9 +26,8 @@ $router->get('/', function() {
 });
 
 $router->get('/login', function() {
-    $title = 'Masuk - Sistem Absensi Guru';
-    $content = __DIR__ . '/../app/views/auth/login.php';
-    include __DIR__ . '/../app/views/layouts/auth.php';
+    // Login page adalah standalone, tidak perlu layout
+    include __DIR__ . '/../app/views/auth/login.php';
 });
 
 $router->post('/login', 'AuthController@login');

@@ -36,6 +36,7 @@ foreach ($filesToDelete as $file) {
 ?>
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,13 +52,15 @@ foreach ($filesToDelete as $file) {
             justify-content: center;
             padding: 20px;
         }
+
         .card {
             max-width: 600px;
             border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
     </style>
 </head>
+
 <body>
     <div class="card">
         <div class="card-header bg-<?= empty($failed) ? 'success' : 'warning' ?> text-white">
@@ -77,7 +80,7 @@ foreach ($filesToDelete as $file) {
                 </ul>
             </div>
             <?php endif; ?>
-            
+
             <?php if (!empty($failed)): ?>
             <div class="alert alert-warning">
                 <strong><i class="bi bi-exclamation-triangle me-2"></i>Gagal Dihapus:</strong>
@@ -90,7 +93,7 @@ foreach ($filesToDelete as $file) {
                 <small>Silakan hapus file-file ini secara manual via FTP/cPanel File Manager untuk keamanan.</small>
             </div>
             <?php endif; ?>
-            
+
             <div class="text-center mt-4">
                 <a href="../" class="btn btn-primary">
                     <i class="bi bi-house-door me-2"></i>
@@ -100,4 +103,5 @@ foreach ($filesToDelete as $file) {
         </div>
     </div>
 </body>
+
 </html>
