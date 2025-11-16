@@ -24,7 +24,7 @@ return new class extends Migration
             $table->date('tanggal_lahir')->nullable();
             $table->enum('status_kepegawaian', ['PNS', 'PPPK', 'GTT', 'GTY'])->nullable();
             $table->timestamps();
-            
+
             $table->index('nip');
             $table->index('nama');
         });

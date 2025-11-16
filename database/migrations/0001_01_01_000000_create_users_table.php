@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('last_login')->nullable();
             $table->rememberToken();
             $table->timestamps();
-            
+
             $table->index('username');
             $table->index('role');
             $table->index('status');
