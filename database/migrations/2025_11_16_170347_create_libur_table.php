@@ -1,0 +1,35 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('libur', function (Blueprint $table) {
+            $table->id();
+            $table->string('nama_libur', 100);
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai');
+            $table->enum('jenis', ['nasional', 'sekolah', 'semester', 'ujian']);
+            $table->text('deskripsi')->nullable();
+            $table->string('tahun_ajaran', 20)->nullable();
+            $table->timestamps();
+
+            $table->index(['tanggal_mulai', 'tanggal_selesai']);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('libur');
+    }
+};

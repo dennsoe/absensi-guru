@@ -11,23 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jadwal_mengajar', function (Blueprint $table) {
+        Schema::create('guru_piket', function (Blueprint $table) {
             $table->id();
             $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
-            $table->foreignId('kelas_id')->constrained('kelas')->onDelete('cascade');
-            $table->foreignId('mapel_id')->constrained('mata_pelajaran')->onDelete('cascade');
             $table->enum('hari', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat']);
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
-            $table->string('ruangan', 50)->nullable();
             $table->string('tahun_ajaran', 20);
-            $table->enum('semester', ['Ganjil', 'Genap']);
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
 
-            $table->index(['guru_id', 'hari']);
-            $table->index(['kelas_id', 'hari']);
-            $table->index(['tahun_ajaran', 'semester']);
+            $table->unique(['guru_id', 'hari', 'tahun_ajaran'], 'unique_guru_hari');
+            $table->index('hari');
         });
     }
 
@@ -36,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jadwal_mengajar');
+        Schema::dropIfExists('guru_piket');
     }
 };

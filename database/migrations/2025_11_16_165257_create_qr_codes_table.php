@@ -13,17 +13,19 @@ return new class extends Migration
     {
         Schema::create('qr_codes', function (Blueprint $table) {
             $table->id();
-            $table->string('code', 100)->unique();
-            $table->enum('tipe', ['Masuk', 'Pulang']);
-            $table->date('tanggal');
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
-            $table->enum('status', ['Aktif', 'Expired', 'Digunakan'])->default('Aktif');
-            $table->foreignId('dibuat_oleh')->constrained('users')->onDelete('cascade');
+            $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
+            $table->foreignId('jadwal_id')->constrained('jadwal_mengajar')->onDelete('cascade');
+            $table->string('qr_data')->unique();
+            $table->string('qr_image_path')->nullable();
+            $table->dateTime('expired_at');
+            $table->boolean('is_used')->default(false);
+            $table->dateTime('used_at')->nullable();
+            $table->foreignId('used_by_ketua_kelas')->nullable()->constrained('users')->onDelete('set null');
             $table->timestamps();
-            
-            $table->index('code');
-            $table->index(['tanggal', 'status']);
+
+            $table->index('qr_data');
+            $table->index('expired_at');
+            $table->index(['guru_id', 'jadwal_id']);
         });
     }
 

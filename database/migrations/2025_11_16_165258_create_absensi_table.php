@@ -13,27 +13,32 @@ return new class extends Migration
     {
         Schema::create('absensi', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('jadwal_id')->constrained('jadwal_mengajar')->onDelete('cascade');
             $table->foreignId('guru_id')->constrained('guru')->onDelete('cascade');
-            $table->foreignId('jadwal_id')->nullable()->constrained('jadwal_mengajar')->onDelete('set null');
             $table->date('tanggal');
             $table->time('jam_masuk')->nullable();
-            $table->time('jam_pulang')->nullable();
-            $table->enum('status', ['Hadir', 'Izin', 'Sakit', 'Alpha', 'Terlambat', 'Cuti'])->default('Alpha');
-            $table->enum('metode_absen', ['QR Code', 'Selfie', 'Manual'])->nullable();
-            $table->string('foto_masuk')->nullable();
-            $table->string('foto_pulang')->nullable();
-            $table->decimal('latitude_masuk', 10, 8)->nullable();
-            $table->decimal('longitude_masuk', 11, 8)->nullable();
-            $table->decimal('latitude_pulang', 10, 8)->nullable();
-            $table->decimal('longitude_pulang', 11, 8)->nullable();
+            $table->time('jam_keluar')->nullable();
+            $table->enum('status_kehadiran', ['hadir', 'terlambat', 'izin', 'sakit', 'alpha', 'dinas_luar', 'cuti'])->default('alpha');
+            $table->enum('metode_absensi', ['qr_code', 'selfie', 'manual']);
+            $table->string('foto_selfie')->nullable();
+            $table->string('qr_code_data')->nullable();
+            $table->decimal('latitude', 10, 8)->nullable();
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->boolean('validasi_gps')->default(false);
+            $table->integer('jarak_dari_sekolah')->nullable();
             $table->text('keterangan')->nullable();
-            $table->string('surat_izin')->nullable();
-            $table->enum('validasi_gps', ['Valid', 'Invalid', 'Tidak Divalidasi'])->default('Tidak Divalidasi');
-            $table->foreignId('diinput_oleh')->nullable()->constrained('users')->onDelete('set null');
+            $table->string('file_pendukung')->nullable();
+            $table->boolean('validasi_ketua_kelas')->default(false);
+            $table->foreignId('ketua_kelas_user_id')->nullable()->constrained('users')->onDelete('set null');
+            $table->dateTime('waktu_validasi_ketua')->nullable();
+            $table->foreignId('created_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->foreignId('approved_by')->nullable()->constrained('users')->onDelete('set null');
+            $table->dateTime('approved_at')->nullable();
             $table->timestamps();
-            
+
             $table->index(['guru_id', 'tanggal']);
-            $table->index('status');
+            $table->index(['jadwal_id', 'tanggal']);
+            $table->index('status_kehadiran');
             $table->index('tanggal');
         });
     }
