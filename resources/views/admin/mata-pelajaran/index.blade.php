@@ -15,7 +15,7 @@
 
     {{-- Filter & Search --}}
     <div class="page-section">
-        <form method="GET" action="{{ route('admin.mapel.index') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.mapel') }}" class="row g-3">
             <div class="col-md-8">
                 <input type="text" name="search" class="form-control"
                     placeholder="Cari kode atau nama mata pelajaran..." value="{{ request('search') }}">

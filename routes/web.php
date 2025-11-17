@@ -82,28 +82,43 @@ Route::middleware('auth')->group(function () {
         Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
         // User Management
-        Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+        Route::get('/users', [AdminController::class, 'users'])->name('users');
         Route::get('/users/create', [AdminController::class, 'createUser'])->name('users.create');
         Route::post('/users', [AdminController::class, 'storeUser'])->name('users.store');
-        Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('users.edit');
-        Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('users.update');
-        Route::delete('/users/{user}', [AdminController::class, 'destroyUser'])->name('users.destroy');
+        Route::get('/users/{id}/edit', [AdminController::class, 'editUser'])->name('users.edit');
+        Route::put('/users/{id}', [AdminController::class, 'updateUser'])->name('users.update');
+        Route::delete('/users/{id}', [AdminController::class, 'destroyUser'])->name('users.destroy');
 
-        // Kelas Management
-        Route::get('/kelas', [KelasController::class, 'index'])->name('kelas.index');
-        Route::get('/kelas/create', [KelasController::class, 'create'])->name('kelas.create');
-        Route::post('/kelas', [KelasController::class, 'store'])->name('kelas.store');
-        Route::get('/kelas/{kela}/edit', [KelasController::class, 'edit'])->name('kelas.edit');
-        Route::put('/kelas/{kela}', [KelasController::class, 'update'])->name('kelas.update');
-        Route::delete('/kelas/{kela}', [KelasController::class, 'destroy'])->name('kelas.destroy');
+        // Guru Management (NEW - dari AdminController)
+        Route::get('/guru', [AdminController::class, 'guru'])->name('guru');
+        Route::get('/guru/create', [AdminController::class, 'createGuru'])->name('guru.create');
+        Route::post('/guru', [AdminController::class, 'storeGuru'])->name('guru.store');
+        Route::get('/guru/{id}/edit', [AdminController::class, 'editGuru'])->name('guru.edit');
+        Route::put('/guru/{id}', [AdminController::class, 'updateGuru'])->name('guru.update');
+        Route::delete('/guru/{id}', [AdminController::class, 'destroyGuru'])->name('guru.destroy');
 
-        // Mata Pelajaran Management
-        Route::get('/mata-pelajaran', [MataPelajaranController::class, 'index'])->name('mapel.index');
-        Route::get('/mata-pelajaran/create', [MataPelajaranController::class, 'create'])->name('mapel.create');
-        Route::post('/mata-pelajaran', [MataPelajaranController::class, 'store'])->name('mapel.store');
-        Route::get('/mata-pelajaran/{mapel}/edit', [MataPelajaranController::class, 'edit'])->name('mapel.edit');
-        Route::put('/mata-pelajaran/{mapel}', [MataPelajaranController::class, 'update'])->name('mapel.update');
-        Route::delete('/mata-pelajaran/{mapel}', [MataPelajaranController::class, 'destroy'])->name('mapel.destroy');
+        // Kelas Management (NEW - dari AdminController)
+        Route::get('/kelas', [AdminController::class, 'kelas'])->name('kelas');
+        Route::get('/kelas/create', [AdminController::class, 'createKelas'])->name('kelas.create');
+        Route::post('/kelas', [AdminController::class, 'storeKelas'])->name('kelas.store');
+        Route::get('/kelas/{id}/edit', [AdminController::class, 'editKelas'])->name('kelas.edit');
+        Route::put('/kelas/{id}', [AdminController::class, 'updateKelas'])->name('kelas.update');
+        Route::delete('/kelas/{id}', [AdminController::class, 'destroyKelas'])->name('kelas.destroy');
+
+        // Mata Pelajaran Management (NEW - dari AdminController)
+        Route::get('/mata-pelajaran', [AdminController::class, 'mataPelajaran'])->name('mapel');
+        Route::get('/mata-pelajaran/create', [AdminController::class, 'createMataPelajaran'])->name('mapel.create');
+        Route::post('/mata-pelajaran', [AdminController::class, 'storeMataPelajaran'])->name('mapel.store');
+        Route::get('/mata-pelajaran/{id}/edit', [AdminController::class, 'editMataPelajaran'])->name('mapel.edit');
+        Route::put('/mata-pelajaran/{id}', [AdminController::class, 'updateMataPelajaran'])->name('mapel.update');
+        Route::delete('/mata-pelajaran/{id}', [AdminController::class, 'destroyMataPelajaran'])->name('mapel.destroy');
+
+        // System Settings (NEW)
+        Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+        Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+
+        // Activity Log (NEW)
+        Route::get('/activity-log', [AdminController::class, 'activityLog'])->name('activity-log');
 
         // Jadwal Mengajar Management
         Route::get('/jadwal', [AdminJadwalController::class, 'index'])->name('jadwal.index');
@@ -176,8 +191,16 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware(['role:guru_piket', 'log.activity'])->prefix('piket')->name('guru-piket.')->group(function () {
         Route::get('/dashboard', [GuruPiketController::class, 'dashboard'])->name('dashboard');
+
+        // Monitoring (NEW - AJAX endpoint)
+        Route::get('/monitoring-absensi', [GuruPiketController::class, 'monitoringAbsensi'])->name('monitoring-absensi');
+
+        // Manual Attendance Input (NEW)
         Route::get('/absensi-manual', [GuruPiketController::class, 'inputAbsensiManual'])->name('absensi-manual');
         Route::post('/absensi-manual', [GuruPiketController::class, 'storeAbsensiManual'])->name('absensi-manual.store');
+
+        // Laporan (NEW)
+        Route::get('/laporan-harian', [GuruPiketController::class, 'laporanHarian'])->name('laporan-harian');
 
         // Monitoring Absensi
         Route::get('/monitoring', [GuruPiketMonitoringController::class, 'index'])->name('monitoring.index');
@@ -202,6 +225,16 @@ Route::middleware('auth')->group(function () {
     */
     Route::middleware(['role:kepala_sekolah', 'log.activity'])->prefix('kepsek')->name('kepala-sekolah.')->group(function () {
         Route::get('/dashboard', [KepalaSekolahController::class, 'dashboard'])->name('dashboard');
+
+        // Izin/Cuti Management (NEW - dari KepalaSekolahController)
+        Route::get('/izin-cuti', [KepalaSekolahController::class, 'izinCuti'])->name('izin-cuti');
+        Route::get('/izin-cuti/{id}', [KepalaSekolahController::class, 'showIzinCuti'])->name('izin-cuti.show');
+        Route::post('/izin-cuti/{id}/approve', [KepalaSekolahController::class, 'approveIzinCuti'])->name('izin-cuti.approve');
+        Route::post('/izin-cuti/{id}/reject', [KepalaSekolahController::class, 'rejectIzinCuti'])->name('izin-cuti.reject');
+
+        // Laporan (NEW)
+        Route::get('/laporan/kehadiran', [KepalaSekolahController::class, 'laporanKehadiran'])->name('laporan.kehadiran');
+        Route::get('/laporan/kedisiplinan', [KepalaSekolahController::class, 'laporanKedisiplinan'])->name('laporan.kedisiplinan');
 
         // Monitoring Eksekutif
         Route::get('/monitoring', [KepalaSekolahMonitoringController::class, 'index'])->name('monitoring.index');
@@ -240,13 +273,16 @@ Route::middleware('auth')->group(function () {
     Route::middleware(['role:kurikulum', 'log.activity'])->prefix('kurikulum')->name('kurikulum.')->group(function () {
         Route::get('/dashboard', [KurikulumController::class, 'dashboard'])->name('dashboard');
 
-        // Jadwal Mengajar Management
-        Route::get('/jadwal', [JadwalMengajarController::class, 'index'])->name('jadwal.index');
-        Route::get('/jadwal/create', [JadwalMengajarController::class, 'create'])->name('jadwal.create');
-        Route::post('/jadwal', [JadwalMengajarController::class, 'store'])->name('jadwal.store');
-        Route::get('/jadwal/{jadwal}/edit', [JadwalMengajarController::class, 'edit'])->name('jadwal.edit');
-        Route::put('/jadwal/{jadwal}', [JadwalMengajarController::class, 'update'])->name('jadwal.update');
-        Route::delete('/jadwal/{jadwal}', [JadwalMengajarController::class, 'destroy'])->name('jadwal.destroy');
+        // Jadwal Mengajar Management (NEW - dari KurikulumController)
+        Route::get('/jadwal', [KurikulumController::class, 'jadwal'])->name('jadwal');
+        Route::get('/jadwal/create', [KurikulumController::class, 'createJadwal'])->name('jadwal.create');
+        Route::post('/jadwal', [KurikulumController::class, 'storeJadwal'])->name('jadwal.store');
+        Route::get('/jadwal/{id}/edit', [KurikulumController::class, 'editJadwal'])->name('jadwal.edit');
+        Route::put('/jadwal/{id}', [KurikulumController::class, 'updateJadwal'])->name('jadwal.update');
+        Route::delete('/jadwal/{id}', [KurikulumController::class, 'destroyJadwal'])->name('jadwal.destroy');
+
+        // Laporan Akademik (NEW)
+        Route::get('/laporan-akademik', [KurikulumController::class, 'laporanAkademik'])->name('laporan-akademik');
 
         // Guru Pengganti Management
         Route::get('/guru-pengganti', [GuruPenggantiController::class, 'index'])->name('guru-pengganti.index');
@@ -277,32 +313,25 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware(['role:ketua_kelas'])->prefix('ketua-kelas')->name('ketua-kelas.')->group(function () {
-        Route::get('/dashboard', function() {
-            $data = [
-                'total_scan_hari_ini' => 0,
-                'scan_valid' => 0,
-                'scan_invalid' => 0,
-                'total_scan_minggu_ini' => 0,
-                'riwayat_scan_hari_ini' => collect([]),
-                'jadwal_kelas_hari_ini' => collect([]),
-                'scan_valid_minggu' => 0,
-                'scan_invalid_minggu' => 0,
-                'tingkat_keberhasilan' => 0,
-            ];
-            return view('ketua-kelas.dashboard', $data);
-        })->name('dashboard');
+        Route::get('/dashboard', [KetuaKelasController::class, 'dashboard'])->name('dashboard');
 
-        // Generate QR (ketua kelas generate QR untuk discan guru)
+        // Generate QR Code (NEW - dari KetuaKelasController)
         Route::get('/generate-qr', [KetuaKelasController::class, 'generateQr'])->name('generate-qr');
+        Route::post('/qr-code', [KetuaKelasController::class, 'storeQrCode'])->name('qr-code.store');
+
+        // Validasi Selfie (NEW)
+        Route::get('/validasi-selfie', [KetuaKelasController::class, 'validasiSelfie'])->name('validasi-selfie');
+        Route::post('/selfie/{id}/approve', [KetuaKelasController::class, 'approveSelfie'])->name('selfie.approve');
+        Route::post('/selfie/{id}/reject', [KetuaKelasController::class, 'rejectSelfie'])->name('selfie.reject');
+
+        // Riwayat & Statistik
+        Route::get('/riwayat', [KetuaKelasController::class, 'riwayat'])->name('riwayat');
+        Route::get('/statistik', [KetuaKelasController::class, 'statistik'])->name('statistik');
+        Route::get('/jadwal', [KetuaKelasController::class, 'jadwal'])->name('jadwal');
+
+        // Legacy routes (for backward compatibility)
         Route::get('/riwayat-scan', [KetuaKelasController::class, 'riwayatScan'])->name('riwayat-scan');
         Route::get('/statistik-scan', [KetuaKelasController::class, 'statistikScan'])->name('statistik-scan');
-        Route::get('/statistik', [KetuaKelasController::class, 'statistik'])->name('statistik');
-
-        // Riwayat
-        Route::get('/riwayat', [KetuaKelasController::class, 'riwayat'])->name('riwayat');
-
-        // Jadwal
-        Route::get('/jadwal', [KetuaKelasController::class, 'jadwal'])->name('jadwal');
     });
 
     /*

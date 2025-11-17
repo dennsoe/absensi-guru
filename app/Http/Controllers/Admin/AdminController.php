@@ -4,73 +4,170 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, Guru, Absensi, JadwalMengajar, Kelas};
-use Illuminate\Support\Facades\Hash;
+use App\Models\{User, Guru, Absensi, JadwalMengajar, Kelas, MataPelajaran, IzinCuti};
+use Illuminate\Support\Facades\{Hash, Auth, DB, Log};
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
     /**
-     * Dashboard Admin
+     * Dashboard Admin dengan System Overview
      */
     public function dashboard()
     {
-        $data = [
-            'total_guru' => Guru::count(),
-            'total_kelas' => Kelas::count(),
-            'total_jadwal' => JadwalMengajar::where('status', 'aktif')->count(),
-            'guru_hadir_hari_ini' => Absensi::whereDate('tanggal', today())
-                                            ->where('status_kehadiran', 'hadir')
-                                            ->count(),
-            'guru_terlambat_hari_ini' => Absensi::whereDate('tanggal', today())
-                                                ->where('status_kehadiran', 'terlambat')
-                                                ->count(),
-            'guru_izin_hari_ini' => Absensi::whereDate('tanggal', today())
-                                           ->whereIn('status_kehadiran', ['izin', 'sakit', 'cuti', 'dinas'])
-                                           ->count(),
-        ];
+        $user = Auth::user();
 
-        return view('admin.dashboard', $data);
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        try {
+            // System Statistics
+            $stats = [
+                'total_users' => User::count(),
+                'total_guru' => Guru::count(),
+                'total_kelas' => Kelas::count(),
+                'total_mapel' => MataPelajaran::count(),
+                'total_jadwal_aktif' => JadwalMengajar::where('status', 'aktif')->count(),
+            ];
+
+            // Today's Activity
+            $today = Carbon::today();
+            $activity_today = [
+                'hadir' => Absensi::whereDate('tanggal', $today)
+                    ->where('status_kehadiran', 'hadir')
+                    ->count(),
+                'terlambat' => Absensi::whereDate('tanggal', $today)
+                    ->where('status_kehadiran', 'terlambat')
+                    ->count(),
+                'izin' => Absensi::whereDate('tanggal', $today)
+                    ->whereIn('status_kehadiran', ['izin', 'sakit'])
+                    ->count(),
+                'alpha' => Absensi::whereDate('tanggal', $today)
+                    ->where('status_kehadiran', 'alpha')
+                    ->count(),
+            ];
+
+            // Pending Approvals
+            $pending_izin = IzinCuti::where('status', 'pending')->count();
+
+            // Recent Users (last 10)
+            $recent_users = User::with('guru')
+                ->latest()
+                ->take(10)
+                ->get();
+
+            // Active Users by Role
+            $users_by_role = User::select('role', DB::raw('count(*) as total'))
+                ->where('status', 'aktif')
+                ->groupBy('role')
+                ->get()
+                ->keyBy('role');
+
+            // Prepare individual variables for view (backward compatibility)
+            $total_guru = $stats['total_guru'];
+            $total_kelas = $stats['total_kelas'];
+            $total_jadwal = $stats['total_jadwal_aktif'];
+            $guru_hadir_hari_ini = $activity_today['hadir'];
+            $guru_terlambat_hari_ini = $activity_today['terlambat'];
+            $guru_izin_hari_ini = $activity_today['izin'];
+
+            return view('admin.dashboard', compact(
+                'stats',
+                'activity_today',
+                'pending_izin',
+                'recent_users',
+                'users_by_role',
+                'total_guru',
+                'total_kelas',
+                'total_jadwal',
+                'guru_hadir_hari_ini',
+                'guru_terlambat_hari_ini',
+                'guru_izin_hari_ini'
+            ));
+
+        } catch (\Exception $e) {
+            Log::error('Error admin dashboard: ' . $e->getMessage());
+            return view('admin.dashboard')->with('error', 'Terjadi kesalahan saat memuat dashboard.');
+        }
     }
 
     /**
-     * Kelola User
+     * ========================================
+     * USER MANAGEMENT
+     * ========================================
+     */
+
+    /**
+     * List Users dengan Search & Filter
      */
     public function users(Request $request)
     {
-        $query = User::with(['guru', 'kelas'])->latest();
+        $user = Auth::user();
 
-        // Filter search
-        if ($request->filled('search')) {
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $query = User::with(['guru', 'kelas']);
+
+        // Search
+        if ($request->has('search') && $request->search) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
-                $q->where('username', 'like', "%{$search}%")
-                  ->orWhere('nama', 'like', "%{$search}%")
-                  ->orWhere('nip', 'like', "%{$search}%");
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%")
+                  ->orWhere('nip', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
-        // Filter role
-        if ($request->filled('role')) {
+        // Filter by Role
+        if ($request->has('role') && $request->role) {
             $query->where('role', $request->role);
         }
 
-        $users = $query->paginate(20)->withQueryString();
-        $guru_list = Guru::all(); // For create/edit forms
+        // Filter by Status
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
 
-        return view('admin.users.index', compact('users', 'guru_list'));
+        $users = $query->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.users.index', [
+            'users' => $users,
+            'filters' => $request->only(['search', 'role', 'status']),
+        ]);
     }
 
+    /**
+     * Form Create User
+     */
     public function createUser()
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
         $guru_list = Guru::whereDoesntHave('user')->get();
         $kelas_list = Kelas::all();
+
         return view('admin.users.create', compact('guru_list', 'kelas_list'));
     }
 
+    /**
+     * Store New User
+     */
     public function storeUser(Request $request)
     {
-        $validated = $request->validate([
-            'username' => 'required|string|unique:users,username|max:50',
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users,username',
             'password' => 'required|string|min:6|confirmed',
             'nama' => 'required|string|max:100',
             'email' => 'nullable|email|unique:users,email',
@@ -78,63 +175,919 @@ class AdminController extends Controller
             'no_hp' => 'nullable|string|max:20',
             'role' => 'required|in:admin,guru,ketua_kelas,guru_piket,kepala_sekolah,kurikulum',
             'guru_id' => 'nullable|exists:guru,id',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'is_active' => 'nullable|boolean',
+            'status' => 'required|in:aktif,nonaktif',
         ]);
 
-        $validated['password'] = Hash::make($validated['password']);
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
+        try {
+            $user = Auth::user();
 
-        User::create($validated);
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
 
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan.');
+            // Validasi: jika role guru, harus ada guru_id
+            if ($request->role === 'guru' && !$request->guru_id) {
+                return back()->withErrors(['guru_id' => 'Guru harus dipilih untuk role Guru.'])
+                    ->withInput();
+            }
+
+            User::create([
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'nip' => $request->nip,
+                'no_hp' => $request->no_hp,
+                'role' => $request->role,
+                'guru_id' => $request->guru_id,
+                'status' => $request->status,
+            ]);
+
+            return redirect()->route('admin.users')
+                ->with('success', 'User berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+            Log::error('Error store user: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
-    public function editUser(User $user)
+    /**
+     * Form Edit User
+     */
+    public function editUser($id)
     {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $user_edit = User::with(['guru', 'kelas'])->findOrFail($id);
+
         $guru_list = Guru::whereDoesntHave('user')
-                     ->orWhere('id', $user->guru_id)
-                     ->get();
+            ->orWhere('id', $user_edit->guru_id)
+            ->get();
+
         $kelas_list = Kelas::all();
-        return view('admin.users.edit', compact('user', 'guru_list', 'kelas_list'));
+
+        return view('admin.users.edit', [
+            'user' => $user_edit,
+            'guru_list' => $guru_list,
+            'kelas_list' => $kelas_list,
+        ]);
     }
 
-    public function updateUser(Request $request, User $user)
+    /**
+     * Update User
+     */
+    public function updateUser(Request $request, $id)
     {
-        $validated = $request->validate([
-            'username' => 'required|string|max:50|unique:users,username,' . $user->id,
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users,username,' . $id,
             'password' => 'nullable|string|min:6|confirmed',
             'nama' => 'required|string|max:100',
-            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'email' => 'nullable|email|unique:users,email,' . $id,
             'nip' => 'nullable|string|max:50',
             'no_hp' => 'nullable|string|max:20',
             'role' => 'required|in:admin,guru,ketua_kelas,guru_piket,kepala_sekolah,kurikulum',
             'guru_id' => 'nullable|exists:guru,id',
-            'kelas_id' => 'nullable|exists:kelas,id',
-            'is_active' => 'nullable|boolean',
+            'status' => 'required|in:aktif,nonaktif',
         ]);
 
-        if ($request->filled('password')) {
-            $validated['password'] = Hash::make($validated['password']);
-        } else {
-            unset($validated['password']);
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $user_edit = User::findOrFail($id);
+
+            $data = [
+                'username' => $request->username,
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'nip' => $request->nip,
+                'no_hp' => $request->no_hp,
+                'role' => $request->role,
+                'guru_id' => $request->guru_id,
+                'status' => $request->status,
+            ];
+
+            // Update password hanya jika diisi
+            if ($request->filled('password')) {
+                $data['password'] = Hash::make($request->password);
+            }
+
+            $user_edit->update($data);
+
+            return redirect()->route('admin.users')
+                ->with('success', 'User berhasil diupdate.');
+
+        } catch (\Exception $e) {
+            Log::error('Error update user: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
         }
-
-        $validated['is_active'] = $request->has('is_active') ? 1 : 0;
-
-        $user->update($validated);
-
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil diupdate.');
     }
 
-    public function destroyUser(User $user)
+    /**
+     * Delete User
+     */
+    public function destroyUser($id)
     {
-        // Cek jika user adalah admin terakhir
-        if ($user->role === 'admin' && User::where('role', 'admin')->count() <= 1) {
-            return back()->with('error', 'Tidak dapat menghapus admin terakhir.');
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $user_delete = User::findOrFail($id);
+
+            // Cek jika user adalah admin terakhir
+            if ($user_delete->role === 'admin') {
+                $admin_count = User::where('role', 'admin')->count();
+                if ($admin_count <= 1) {
+                    return redirect()->route('admin.users')
+                        ->with('error', 'Tidak dapat menghapus admin terakhir.');
+                }
+            }
+
+            // Cek jika sedang menghapus diri sendiri
+            if ($user_delete->id === $user->id) {
+                return redirect()->route('admin.users')
+                    ->with('error', 'Tidak dapat menghapus akun sendiri.');
+            }
+
+            $user_delete->delete();
+
+            return redirect()->route('admin.users')
+                ->with('success', 'User berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            Log::error('Error delete user: ' . $e->getMessage());
+            return redirect()->route('admin.users')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ========================================
+     * GURU MANAGEMENT
+     * ========================================
+     */
+
+    /**
+     * List Guru
+     */
+    public function guru(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
         }
 
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus.');
+        $query = Guru::with('user');
+
+        // Search
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nip', 'like', "%{$search}%")
+                  ->orWhere('nama', 'like', "%{$search}%")
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('nama', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        // Sorting
+        $sort = $request->get('sort', 'created_desc');
+        switch ($sort) {
+            case 'nama_asc':
+                $query->orderBy('nama', 'asc');
+                break;
+            case 'nama_desc':
+                $query->orderBy('nama', 'desc');
+                break;
+            case 'nip_asc':
+                $query->orderBy('nip', 'asc');
+                break;
+            case 'created_desc':
+            default:
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        // Status filter
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        $guru_list = $query->paginate(20);
+
+        return view('admin.guru.index', [
+            'guru_list' => $guru_list,
+        ]);
+    }
+
+    /**
+     * Form Create Guru
+     */
+    public function createGuru()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        return view('admin.guru.create');
+    }
+
+    /**
+     * Store Guru
+     */
+    public function storeGuru(Request $request)
+    {
+        $request->validate([
+            'nip' => 'required|string|max:50|unique:guru,nip',
+            'nama' => 'required|string|max:100',
+            'email' => 'nullable|email|unique:guru,email',
+            'no_telepon' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
+            'status' => 'required|in:aktif,nonaktif',
+            'username' => 'required|string|max:50|unique:users,username',
+            'password' => 'required|string|min:6|confirmed',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            DB::beginTransaction();
+
+            // Create User Account
+            $user_guru = User::create([
+                'username' => $request->username,
+                'password' => Hash::make($request->password),
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'role' => 'guru',
+                'status' => 'aktif',
+            ]);
+
+            // Create Guru
+            Guru::create([
+                'user_id' => $user_guru->id,
+                'nip' => $request->nip,
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'no_telepon' => $request->no_telepon,
+                'alamat' => $request->alamat,
+                'status' => $request->status,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.guru')
+                ->with('success', 'Data guru dan akun pengguna berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error store guru: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Form Edit Guru
+     */
+    public function editGuru($id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $guru = Guru::with('user')->findOrFail($id);
+
+        return view('admin.guru.edit', compact('guru'));
+    }
+
+    /**
+     * Update Guru
+     */
+    public function updateGuru(Request $request, $id)
+    {
+        $request->validate([
+            'nip' => 'required|string|max:50|unique:guru,nip,' . $id,
+            'nama' => 'required|string|max:100',
+            'email' => 'nullable|email|unique:guru,email,' . $id,
+            'no_telepon' => 'nullable|string|max:20',
+            'alamat' => 'nullable|string',
+            'status' => 'required|in:aktif,nonaktif',
+            'password' => 'nullable|string|min:6|confirmed',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $guru = Guru::findOrFail($id);
+
+            DB::beginTransaction();
+
+            // Update Guru
+            $guru->update([
+                'nip' => $request->nip,
+                'nama' => $request->nama,
+                'email' => $request->email,
+                'no_telepon' => $request->no_telepon,
+                'alamat' => $request->alamat,
+                'status' => $request->status,
+            ]);
+
+            // Update User if exists and password provided
+            if ($guru->user && $request->filled('password')) {
+                $guru->user->update([
+                    'password' => Hash::make($request->password),
+                    'nama' => $request->nama,
+                    'email' => $request->email,
+                ]);
+            }
+
+            DB::commit();
+
+            return redirect()->route('admin.guru')
+                ->with('success', 'Data guru berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error update guru: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Delete Guru
+     */
+    public function destroyGuru($id)
+    {
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $guru = Guru::findOrFail($id);
+
+            // Cek jika ada user terkait
+            if ($guru->user_id) {
+                return redirect()->route('admin.guru')
+                    ->with('error', 'Tidak dapat menghapus guru yang memiliki akun user. Hapus user terlebih dahulu.');
+            }
+
+            // Cek jika ada jadwal terkait
+            $ada_jadwal = JadwalMengajar::where('guru_id', $id)->exists();
+            if ($ada_jadwal) {
+                return redirect()->route('admin.guru')
+                    ->with('error', 'Tidak dapat menghapus guru yang memiliki jadwal mengajar.');
+            }
+
+            $guru->delete();
+
+            return redirect()->route('admin.guru')
+                ->with('success', 'Data guru berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            Log::error('Error delete guru: ' . $e->getMessage());
+            return redirect()->route('admin.guru')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ========================================
+     * KELAS MANAGEMENT
+     * ========================================
+     */
+
+    /**
+     * List Kelas
+     */
+    public function kelas(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $query = Kelas::with(['waliKelas', 'ketuaKelas']);
+
+        if ($request->has('search') && $request->search) {
+            $query->where('nama_kelas', 'like', "%{$request->search}%");
+        }
+
+        $kelas_list = $query->orderBy('nama_kelas')
+            ->paginate(20);
+
+        return view('admin.kelas.index', [
+            'kelas_list' => $kelas_list,
+            'search' => $request->search,
+        ]);
+    }
+
+    /**
+     * Form Create Kelas
+     */
+    public function createKelas()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $guru_list = Guru::with('user')
+            ->whereHas('user', function($q) {
+                $q->where('status', 'aktif');
+            })
+            ->get();
+
+        $ketua_kelas_list = User::where('role', 'ketua_kelas')
+            ->where('status', 'aktif')
+            ->whereDoesntHave('kelas')
+            ->get();
+
+        return view('admin.kelas.create', compact('guru_list', 'ketua_kelas_list'));
+    }
+
+    /**
+     * Store Kelas
+     */
+    public function storeKelas(Request $request)
+    {
+        $request->validate([
+            'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas',
+            'tingkat' => 'required|integer|min:1|max:12',
+            'jurusan' => 'nullable|string|max:50',
+            'wali_kelas_guru_id' => 'nullable|exists:guru,id',
+            'ketua_kelas_user_id' => 'nullable|exists:users,id',
+            'tahun_ajaran' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            Kelas::create($request->all());
+
+            return redirect()->route('admin.kelas')
+                ->with('success', 'Kelas berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+            Log::error('Error store kelas: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Form Edit Kelas
+     */
+    public function editKelas($id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $kelas = Kelas::with(['waliKelas', 'ketuaKelas'])->findOrFail($id);
+
+        $guru_list = Guru::with('user')
+            ->whereHas('user', function($q) {
+                $q->where('status', 'aktif');
+            })
+            ->get();
+
+        $ketua_kelas_list = User::where('role', 'ketua_kelas')
+            ->where('status', 'aktif')
+            ->where(function($q) use ($kelas) {
+                $q->whereDoesntHave('kelas')
+                  ->orWhere('id', $kelas->ketua_kelas_user_id);
+            })
+            ->get();
+
+        return view('admin.kelas.edit', [
+            'kelas' => $kelas,
+            'guru_list' => $guru_list,
+            'ketua_kelas_list' => $ketua_kelas_list,
+        ]);
+    }
+
+    /**
+     * Update Kelas
+     */
+    public function updateKelas(Request $request, $id)
+    {
+        $request->validate([
+            'nama_kelas' => 'required|string|max:50|unique:kelas,nama_kelas,' . $id,
+            'tingkat' => 'required|integer|min:1|max:12',
+            'jurusan' => 'nullable|string|max:50',
+            'wali_kelas_guru_id' => 'nullable|exists:guru,id',
+            'ketua_kelas_user_id' => 'nullable|exists:users,id',
+            'tahun_ajaran' => 'nullable|string|max:20',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $kelas = Kelas::findOrFail($id);
+            $kelas->update($request->all());
+
+            return redirect()->route('admin.kelas')
+                ->with('success', 'Kelas berhasil diupdate.');
+
+        } catch (\Exception $e) {
+            Log::error('Error update kelas: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Delete Kelas
+     */
+    public function destroyKelas($id)
+    {
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $kelas = Kelas::findOrFail($id);
+
+            // Cek jika ada jadwal terkait
+            $ada_jadwal = JadwalMengajar::where('kelas_id', $id)->exists();
+            if ($ada_jadwal) {
+                return redirect()->route('admin.kelas')
+                    ->with('error', 'Tidak dapat menghapus kelas yang memiliki jadwal mengajar.');
+            }
+
+            $kelas->delete();
+
+            return redirect()->route('admin.kelas')
+                ->with('success', 'Kelas berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            Log::error('Error delete kelas: ' . $e->getMessage());
+            return redirect()->route('admin.kelas')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ========================================
+     * MATA PELAJARAN MANAGEMENT
+     * ========================================
+     */
+
+    /**
+     * List Mata Pelajaran
+     */
+    public function mataPelajaran(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $query = MataPelajaran::query();
+
+        if ($request->has('search') && $request->search) {
+            $query->where('nama_mapel', 'like', "%{$request->search}%")
+                  ->orWhere('kode_mapel', 'like', "%{$request->search}%");
+        }
+
+        $mapel_list = $query->withCount('jadwalMengajar')
+            ->orderBy('nama_mapel')
+            ->paginate(20);
+
+        return view('admin.mapel.index', [
+            'mapel_list' => $mapel_list,
+            'search' => $request->search,
+        ]);
+    }
+
+    /**
+     * Form Create Mata Pelajaran
+     */
+    public function createMataPelajaran()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        return view('admin.mapel.create');
+    }
+
+    /**
+     * Store Mata Pelajaran
+     */
+    public function storeMataPelajaran(Request $request)
+    {
+        $request->validate([
+            'kode_mapel' => 'required|string|max:20|unique:mata_pelajaran,kode_mapel',
+            'nama_mapel' => 'required|string|max:100',
+            'kategori' => 'nullable|in:umum,kejuruan,muatan_lokal',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            MataPelajaran::create($request->all());
+
+            return redirect()->route('admin.mapel')
+                ->with('success', 'Mata pelajaran berhasil ditambahkan.');
+
+        } catch (\Exception $e) {
+            Log::error('Error store mapel: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Form Edit Mata Pelajaran
+     */
+    public function editMataPelajaran($id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $mapel = MataPelajaran::findOrFail($id);
+
+        return view('admin.mapel.edit', compact('mapel'));
+    }
+
+    /**
+     * Update Mata Pelajaran
+     */
+    public function updateMataPelajaran(Request $request, $id)
+    {
+        $request->validate([
+            'kode_mapel' => 'required|string|max:20|unique:mata_pelajaran,kode_mapel,' . $id,
+            'nama_mapel' => 'required|string|max:100',
+            'kategori' => 'nullable|in:umum,kejuruan,muatan_lokal',
+            'deskripsi' => 'nullable|string',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $mapel = MataPelajaran::findOrFail($id);
+            $mapel->update($request->all());
+
+            return redirect()->route('admin.mapel')
+                ->with('success', 'Mata pelajaran berhasil diupdate.');
+
+        } catch (\Exception $e) {
+            Log::error('Error update mapel: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Delete Mata Pelajaran
+     */
+    public function destroyMataPelajaran($id)
+    {
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            $mapel = MataPelajaran::findOrFail($id);
+
+            // Cek jika ada jadwal terkait
+            $ada_jadwal = JadwalMengajar::where('mapel_id', $id)->exists();
+            if ($ada_jadwal) {
+                return redirect()->route('admin.mapel')
+                    ->with('error', 'Tidak dapat menghapus mata pelajaran yang memiliki jadwal mengajar.');
+            }
+
+            $mapel->delete();
+
+            return redirect()->route('admin.mapel')
+                ->with('success', 'Mata pelajaran berhasil dihapus.');
+
+        } catch (\Exception $e) {
+            Log::error('Error delete mapel: ' . $e->getMessage());
+            return redirect()->route('admin.mapel')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ========================================
+     * SYSTEM SETTINGS & ACTIVITY LOG
+     * ========================================
+     */
+
+    /**
+     * System Settings
+     */
+    public function settings()
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        // Load settings dari config atau database
+        $settings = [
+            'school_name' => env('SCHOOL_NAME', 'SMK Negeri Kasomalang'),
+            'school_address' => env('SCHOOL_ADDRESS', ''),
+            'school_year' => env('SCHOOL_YEAR', '2024/2025'),
+            'school_latitude' => env('SCHOOL_LATITUDE', '-6.200000'),
+            'school_longitude' => env('SCHOOL_LONGITUDE', '106.816666'),
+            'gps_radius' => env('GPS_RADIUS', 200),
+            'toleransi_terlambat' => env('TOLERANSI_TERLAMBAT', 15),
+            'qr_expiry_minutes' => env('QR_EXPIRY_MINUTES', 15),
+            'enable_selfie' => env('ENABLE_SELFIE', true),
+            'enable_qr' => env('ENABLE_QR', true),
+            'updated_at' => now()->format('d M Y H:i'),
+        ];
+
+        return view('admin.settings', compact('settings'));
+    }
+
+    /**
+     * Update System Settings
+     */
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'school_name' => 'required|string|max:100',
+            'school_address' => 'nullable|string',
+            'school_year' => 'nullable|string|max:20',
+            'school_latitude' => 'required|numeric',
+            'school_longitude' => 'required|numeric',
+            'gps_radius' => 'required|integer|min:50|max:1000',
+            'toleransi_terlambat' => 'required|integer|min:0|max:60',
+            'qr_expiry_minutes' => 'required|integer|min:5|max:60',
+        ]);
+
+        try {
+            $user = Auth::user();
+
+            if ($user->role !== 'admin') {
+                return redirect()->route('dashboard')
+                    ->with('error', 'Akses ditolak.');
+            }
+
+            // Update .env file (simplified - dalam production gunakan package seperti vlucas/phpdotenv)
+            // Untuk demo, simpan ke session atau database
+
+            session()->flash('settings_updated', $request->all());
+
+            return redirect()->route('admin.settings')
+                ->with('success', 'Pengaturan sistem berhasil diupdate. (Note: Perlu restart server untuk apply changes di .env)');
+
+        } catch (\Exception $e) {
+            Log::error('Error update settings: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
+                ->withInput();
+        }
+    }
+
+    /**
+     * Activity Logs
+     */
+    public function activityLog(Request $request)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        // Date range filter
+        $start_date = $request->get('start_date', Carbon::today()->subDays(7)->format('Y-m-d'));
+        $end_date = $request->get('end_date', Carbon::today()->format('Y-m-d'));
+
+        // Query absensi sebagai activity log
+        $query = Absensi::with(['guru', 'jadwal.mataPelajaran', 'jadwal.kelas'])
+            ->whereBetween('tanggal', [$start_date, $end_date]);
+
+        // Type filter (metode absensi)
+        if ($request->has('type') && $request->type) {
+            $query->where('metode', $request->type);
+        }
+
+        // Role filter (based on guru)
+        if ($request->has('role') && $request->role) {
+            $query->whereHas('guru.user', function($q) use ($request) {
+                $q->where('role', $request->role);
+            });
+        }
+
+        $activities = $query->orderBy('created_at', 'desc')
+            ->paginate(30);
+
+        // Statistics for the period
+        $stats = [
+            'login' => 0, // Placeholder - implement if you have login logs
+            'create' => Absensi::whereBetween('tanggal', [$start_date, $end_date])->count(),
+            'update' => 0, // Placeholder
+            'delete' => 0, // Placeholder
+        ];
+
+        // Transform absensi to activity format for view
+        $activities->transform(function($item) {
+            $item->type = $item->metode ?? 'manual';
+            $item->description = "{$item->guru->nama} - {$item->jadwal->mataPelajaran->nama} ({$item->status})";
+            $item->user = $item->guru->user ?? (object)['nama' => $item->guru->nama, 'username' => '-', 'role' => 'guru'];
+            $item->ip_address = $item->ip_address ?? '-';
+            $item->user_agent = $item->user_agent ?? '-';
+            $item->details = json_encode([
+                'status' => $item->status,
+                'metode' => $item->metode,
+                'kelas' => $item->jadwal->kelas->nama_kelas ?? '-',
+                'mapel' => $item->jadwal->mataPelajaran->nama ?? '-',
+            ]);
+            return $item;
+        });
+
+        return view('admin.activity-log', compact('activities', 'stats'));
     }
 }

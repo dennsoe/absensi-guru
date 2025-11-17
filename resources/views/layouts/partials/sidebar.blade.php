@@ -58,14 +58,14 @@
                     </a>
                 </div>
                 <div class="sidebar-menu-item">
-                    <a href="{{ route('admin.users.index') }}"
+                    <a href="{{ route('admin.users') }}"
                         class="sidebar-menu-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
                         <i class="bi bi-people sidebar-menu-icon"></i>
                         <span class="sidebar-menu-text">Data Guru</span>
                     </a>
                 </div>
                 <div class="sidebar-menu-item">
-                    <a href="{{ route('admin.kelas.index') }}"
+                    <a href="{{ route('admin.kelas') }}"
                         class="sidebar-menu-link {{ request()->routeIs('admin.kelas.*') ? 'active' : '' }}">
                         <i class="bi bi-building sidebar-menu-icon"></i>
                         <span class="sidebar-menu-text">Data Kelas</span>

@@ -8,7 +8,7 @@
             <h1 class="page-title">Edit User</h1>
             <p class="page-subtitle">Ubah data akun {{ $user->nama }}</p>
         </div>
-        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
@@ -174,7 +174,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Update User
                         </button>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.users') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Batal
                         </a>
                     </div>

@@ -81,17 +81,17 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach ($absensis_by_guru as $guru_nama => $absensis)
+                                    @foreach ($by_guru as $guru_id => $data)
                                         @php
-                                            $total = $absensis->count();
-                                            $hadir = $absensis->whereIn('status', ['hadir'])->count();
-                                            $terlambat = $absensis->whereIn('status', ['terlambat'])->count();
-                                            $izin = $absensis->whereIn('status', ['izin', 'sakit'])->count();
-                                            $alpha = $absensis->whereIn('status', ['alpha'])->count();
+                                            $total = $data['total'];
+                                            $hadir = $data['hadir'];
+                                            $terlambat = $data['terlambat'];
+                                            $izin = $data['izin'];
+                                            $alpha = $data['alpha'];
                                             $persentase = $total > 0 ? round(($hadir / $total) * 100, 1) : 0;
                                         @endphp
                                         <tr>
-                                            <td><strong>{{ $guru_nama }}</strong></td>
+                                            <td><strong>{{ $data['guru']->nama }}</strong></td>
                                             <td class="text-center">{{ $total }}</td>
                                             <td class="text-center text-success"><strong>{{ $hadir }}</strong></td>
                                             <td class="text-center text-warning">{{ $terlambat }}</td>
@@ -183,14 +183,13 @@
                                             <td>{{ $absensi->waktu_absen ? \Carbon\Carbon::parse($absensi->waktu_absen)->format('H:i') : '-' }}
                                             </td>
                                             <td>
-                                                @if ($absensi->status == 'hadir')
+                                                @if ($absensi->status_kehadiran == 'hadir')
                                                     <span class="badge bg-success">Hadir</span>
-                                                @elseif($absensi->status == 'terlambat')
+                                                @elseif($absensi->status_kehadiran == 'terlambat')
                                                     <span class="badge bg-warning">Terlambat</span>
-                                                @elseif($absensi->status == 'izin')
-                                                    <span class="badge bg-info">Izin</span>
-                                                @elseif($absensi->status == 'sakit')
-                                                    <span class="badge bg-info">Sakit</span>
+                                                @elseif(in_array($absensi->status_kehadiran, ['izin', 'sakit', 'cuti', 'dinas']))
+                                                    <span
+                                                        class="badge bg-info">{{ ucfirst($absensi->status_kehadiran) }}</span>
                                                 @else
                                                     <span class="badge bg-danger">Alpha</span>
                                                 @endif

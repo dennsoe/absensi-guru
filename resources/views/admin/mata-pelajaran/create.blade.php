@@ -8,7 +8,7 @@
             <h1 class="page-title">Tambah Mata Pelajaran</h1>
             <p class="page-subtitle">Form untuk menambahkan mata pelajaran baru</p>
         </div>
-        <a href="{{ route('admin.mapel.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.mapel') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
@@ -59,7 +59,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Simpan Mata Pelajaran
                         </button>
-                        <a href="{{ route('admin.mapel.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.mapel') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Batal
                         </a>
                     </div>

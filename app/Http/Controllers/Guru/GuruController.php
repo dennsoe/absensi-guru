@@ -6,111 +6,149 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Guru, Absensi, JadwalMengajar, IzinCuti};
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class GuruController extends Controller
 {
     /**
-     * Dashboard Guru
+     * Dashboard Guru - Tampilkan jadwal hari ini dan status absensi
      */
     public function dashboard()
     {
-        $guru = Auth::user()->guru;
+        $user = Auth::user();
+        $guru = $user->guru;
 
         if (!$guru) {
-            abort(403, 'Data guru tidak ditemukan.');
+            return redirect()->route('login')
+                ->with('error', 'Anda tidak memiliki akses sebagai guru.');
         }
 
-        $hari_ini = ucfirst(now()->locale('id')->dayName);
-        $tanggal_hari_ini = today();
-        $jam_sekarang = now();
+        $hari_ini = ucfirst(Carbon::now()->locale('id')->dayName);
+        $tanggal_hari_ini = Carbon::today();
+        $jam_sekarang = Carbon::now();
 
-        // Jadwal hari ini
+        // Ambil semua jadwal mengajar hari ini untuk guru ini
         $jadwal_hari_ini = JadwalMengajar::where('guru_id', $guru->id)
-                                           ->where('hari', $hari_ini)
-                                           ->where('status', 'aktif')
-                                           ->with(['kelas', 'mataPelajaran'])
-                                           ->orderBy('jam_mulai')
-                                           ->get();
+            ->where('hari', $hari_ini)
+            ->where('status', 'aktif')
+            ->with(['kelas', 'mataPelajaran'])
+            ->orderBy('jam_mulai')
+            ->get();
 
-        // Absensi hari ini
-        $absensi_hari_ini = Absensi::where('guru_id', $guru->id)
-                                    ->whereDate('tanggal', $tanggal_hari_ini)
-                                    ->count();
+        // Tambahkan informasi status absensi untuk setiap jadwal
+        $jadwal_hari_ini->each(function($jadwal) use ($guru, $tanggal_hari_ini, $jam_sekarang) {
+            // Cek apakah sudah absen untuk jadwal ini
+            $jadwal->absensi_record = Absensi::where('guru_id', $guru->id)
+                ->where('jadwal_id', $jadwal->id)
+                ->whereDate('tanggal', $tanggal_hari_ini)
+                ->first();
 
-        // Absensi bulan ini dengan detail
-        $absensi_bulan_ini = Absensi::where('guru_id', $guru->id)
-                                      ->whereMonth('tanggal', now()->month)
-                                      ->whereYear('tanggal', now()->year)
-                                      ->get();
+            // Tentukan status jadwal (akan datang, berlangsung, selesai)
+            $jam_mulai = Carbon::parse($jadwal->jam_mulai);
+            $jam_selesai = Carbon::parse($jadwal->jam_selesai);
 
-        // Statistik kehadiran
-        $total_hadir = $absensi_bulan_ini->whereIn('status_kehadiran', ['hadir'])->count();
-        $total_terlambat = $absensi_bulan_ini->where('status_kehadiran', 'terlambat')->count();
-        $total_izin = $absensi_bulan_ini->whereIn('status_kehadiran', ['izin', 'sakit'])->count();
-        $total_alpha = $absensi_bulan_ini->where('status_kehadiran', 'alpha')->count();
-
-        // Cek jadwal yang akan datang (dalam 30 menit)
-        $jadwal_upcoming = $jadwal_hari_ini->filter(function($jadwal) use ($jam_sekarang) {
-            $jam_mulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
-            $selisih_menit = $jam_sekarang->diffInMinutes($jam_mulai, false);
-            return $selisih_menit > 0 && $selisih_menit <= 30;
-        })->first();
-
-        // Cek jadwal yang sedang berlangsung
-        $jadwal_berlangsung = $jadwal_hari_ini->filter(function($jadwal) use ($jam_sekarang) {
-            $jam_mulai = \Carbon\Carbon::parse($jadwal->jam_mulai);
-            $jam_selesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
-            return $jam_sekarang->between($jam_mulai, $jam_selesai);
-        })->first();
-
-        // Cek apakah sudah absen untuk jadwal yang sedang berlangsung
-        $sudah_absen_jadwal_berlangsung = false;
-        if ($jadwal_berlangsung) {
-            $sudah_absen_jadwal_berlangsung = Absensi::where('guru_id', $guru->id)
-                                                     ->where('jadwal_id', $jadwal_berlangsung->id)
-                                                     ->whereDate('tanggal', $tanggal_hari_ini)
-                                                     ->exists();
-        }
-
-        // CEK JADWAL YANG SUDAH LEWAT TAPI BELUM ABSEN (KRITIS!)
-        $jadwal_terlewat_belum_absen = $jadwal_hari_ini->filter(function($jadwal) use ($jam_sekarang, $guru, $tanggal_hari_ini) {
-            $jam_selesai = \Carbon\Carbon::parse($jadwal->jam_selesai);
-
-            // Jadwal sudah selesai (lewat)
-            if ($jam_sekarang->greaterThan($jam_selesai)) {
-                // Cek apakah ada absensi untuk jadwal ini
-                $sudah_absen = Absensi::where('guru_id', $guru->id)
-                                      ->where('jadwal_id', $jadwal->id)
-                                      ->whereDate('tanggal', $tanggal_hari_ini)
-                                      ->exists();
-
-                return !$sudah_absen; // Return TRUE jika belum absen
+            if ($jam_sekarang->lt($jam_mulai)) {
+                $jadwal->status_jadwal = 'akan_datang';
+                $jadwal->menit_tersisa = $jam_sekarang->diffInMinutes($jam_mulai, false);
+            } elseif ($jam_sekarang->between($jam_mulai, $jam_selesai)) {
+                $jadwal->status_jadwal = 'berlangsung';
+            } else {
+                $jadwal->status_jadwal = 'selesai';
             }
-
-            return false;
         });
 
-        // Ambil jadwal terlewat pertama (paling urgent)
-        $jadwal_terlewat_pertama = $jadwal_terlewat_belum_absen->first();
+        // Hitung total absensi hari ini
+        $total_absensi_hari_ini = Absensi::where('guru_id', $guru->id)
+            ->whereDate('tanggal', $tanggal_hari_ini)
+            ->count();
 
-        $data = [
-            'guru' => $guru,
-            'hari_ini' => $hari_ini,
-            'jadwal_hari_ini' => $jadwal_hari_ini,
-            'absensi_hari_ini' => $absensi_hari_ini,
-            'absensi_bulan_ini' => $absensi_bulan_ini,
-            'total_hadir' => $total_hadir,
-            'total_terlambat' => $total_terlambat,
-            'total_izin' => $total_izin,
-            'total_alpha' => $total_alpha,
-            'jadwal_upcoming' => $jadwal_upcoming,
-            'jadwal_berlangsung' => $jadwal_berlangsung,
-            'sudah_absen_jadwal_berlangsung' => $sudah_absen_jadwal_berlangsung,
-            'jadwal_terlewat_belum_absen' => $jadwal_terlewat_belum_absen,
-            'jadwal_terlewat_pertama' => $jadwal_terlewat_pertama,
+        // Statistik absensi bulan ini
+        $bulan_ini = Carbon::now()->month;
+        $tahun_ini = Carbon::now()->year;
+
+        $absensi_bulan_ini = Absensi::where('guru_id', $guru->id)
+            ->whereMonth('tanggal', $bulan_ini)
+            ->whereYear('tanggal', $tahun_ini)
+            ->get();
+
+        $statistik = [
+            'total' => $absensi_bulan_ini->count(),
+            'hadir' => $absensi_bulan_ini->where('status_kehadiran', 'hadir')->count(),
+            'terlambat' => $absensi_bulan_ini->where('status_kehadiran', 'terlambat')->count(),
+            'izin' => $absensi_bulan_ini->whereIn('status_kehadiran', ['izin', 'sakit', 'cuti'])->count(),
+            'alpha' => $absensi_bulan_ini->where('status_kehadiran', 'alpha')->count(),
         ];
 
-        return view('guru.dashboard', $data);
+        // Hitung persentase kehadiran
+        $statistik['persentase'] = $statistik['total'] > 0
+            ? round((($statistik['hadir'] + $statistik['terlambat']) / $statistik['total']) * 100, 1)
+            : 0;
+
+        // Alert: Jadwal yang perlu perhatian
+        $alerts = [];
+
+        // 1. Jadwal yang sedang berlangsung tapi belum absen (URGENT)
+        $jadwal_berlangsung = $jadwal_hari_ini->first(function($jadwal) {
+            return $jadwal->status_jadwal === 'berlangsung' && !$jadwal->absensi_record;
+        });
+
+        if ($jadwal_berlangsung) {
+            $alerts[] = [
+                'type' => 'danger',
+                'icon' => 'exclamation-triangle-fill',
+                'title' => 'Jadwal Sedang Berlangsung!',
+                'message' => "Anda memiliki jadwal {$jadwal_berlangsung->mataPelajaran->nama_mapel} di kelas {$jadwal_berlangsung->kelas->nama_kelas} yang sedang berlangsung. Segera lakukan absensi!",
+                'jadwal' => $jadwal_berlangsung,
+            ];
+        }
+
+        // 2. Jadwal yang akan datang dalam 30 menit
+        $jadwal_upcoming = $jadwal_hari_ini->first(function($jadwal) {
+            return $jadwal->status_jadwal === 'akan_datang'
+                && isset($jadwal->menit_tersisa)
+                && $jadwal->menit_tersisa <= 30;
+        });
+
+        if ($jadwal_upcoming) {
+            $alerts[] = [
+                'type' => 'warning',
+                'icon' => 'clock-fill',
+                'title' => 'Jadwal Akan Dimulai!',
+                'message' => "Anda memiliki jadwal {$jadwal_upcoming->mataPelajaran->nama_mapel} di kelas {$jadwal_upcoming->kelas->nama_kelas} dalam {$jadwal_upcoming->menit_tersisa} menit.",
+                'jadwal' => $jadwal_upcoming,
+            ];
+        }
+
+        // 3. Jadwal yang sudah lewat tapi belum absen (KRITIS)
+        $jadwal_terlewat = $jadwal_hari_ini->filter(function($jadwal) {
+            return $jadwal->status_jadwal === 'selesai' && !$jadwal->absensi_record;
+        });
+
+        if ($jadwal_terlewat->isNotEmpty()) {
+            $alerts[] = [
+                'type' => 'danger',
+                'icon' => 'x-circle-fill',
+                'title' => 'Jadwal Terlewat Tanpa Absensi!',
+                'message' => "Anda memiliki {$jadwal_terlewat->count()} jadwal yang sudah selesai namun belum melakukan absensi. Hubungi Guru Piket untuk absensi manual.",
+                'count' => $jadwal_terlewat->count(),
+            ];
+        }
+
+        // Izin/Cuti yang pending approval
+        $izin_pending = IzinCuti::where('guru_id', $guru->id)
+            ->where('status', 'pending')
+            ->count();
+
+        return view('guru.dashboard', [
+            'guru' => $guru,
+            'hari_ini' => $hari_ini,
+            'tanggal_hari_ini' => $tanggal_hari_ini,
+            'jadwal_hari_ini' => $jadwal_hari_ini,
+            'total_absensi_hari_ini' => $total_absensi_hari_ini,
+            'statistik' => $statistik,
+            'alerts' => $alerts,
+            'izin_pending' => $izin_pending,
+        ]);
     }
 
     /**

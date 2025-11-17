@@ -6,9 +6,9 @@
     <div class="page-header">
         <div>
             <h1 class="page-title">Edit Kelas</h1>
-            <p class="page-subtitle">Ubah data kelas {{ $kela->nama_kelas }}</p>
+            <p class="page-subtitle">Ubah data kelas {{ $kelas->nama_kelas }}</p>
         </div>
-        <a href="{{ route('admin.kelas.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.kelas') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
@@ -16,7 +16,7 @@
     <div class="row">
         <div class="col-lg-8">
             <div class="page-section">
-                <form action="{{ route('admin.kelas.update', $kela->id) }}" method="POST">
+                <form action="{{ route('admin.kelas.update', $kelas->id) }}" method="POST">
                     @csrf
                     @method('PUT')
 
@@ -24,7 +24,7 @@
                     <div class="mb-3">
                         <label for="nama_kelas" class="form-label">Nama Kelas <span class="text-danger">*</span></label>
                         <input type="text" class="form-control @error('nama_kelas') is-invalid @enderror" id="nama_kelas"
-                            name="nama_kelas" value="{{ old('nama_kelas', $kela->nama_kelas) }}" required
+                            name="nama_kelas" value="{{ old('nama_kelas', $kelas->nama_kelas) }}" required
                             placeholder="Contoh: X-IPA-1">
                         @error('nama_kelas')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -38,11 +38,11 @@
                         <select class="form-control @error('tingkat') is-invalid @enderror" id="tingkat" name="tingkat"
                             required>
                             <option value="">-- Pilih Tingkat --</option>
-                            <option value="10" {{ old('tingkat', $kela->tingkat) == '10' ? 'selected' : '' }}>Kelas 10
+                            <option value="10" {{ old('tingkat', $kelas->tingkat) == '10' ? 'selected' : '' }}>Kelas 10
                             </option>
-                            <option value="11" {{ old('tingkat', $kela->tingkat) == '11' ? 'selected' : '' }}>Kelas 11
+                            <option value="11" {{ old('tingkat', $kelas->tingkat) == '11' ? 'selected' : '' }}>Kelas 11
                             </option>
-                            <option value="12" {{ old('tingkat', $kela->tingkat) == '12' ? 'selected' : '' }}>Kelas 12
+                            <option value="12" {{ old('tingkat', $kelas->tingkat) == '12' ? 'selected' : '' }}>Kelas 12
                             </option>
                         </select>
                         @error('tingkat')
@@ -54,7 +54,7 @@
                     <div class="mb-3">
                         <label for="jurusan" class="form-label">Jurusan</label>
                         <input type="text" class="form-control @error('jurusan') is-invalid @enderror" id="jurusan"
-                            name="jurusan" value="{{ old('jurusan', $kela->jurusan) }}"
+                            name="jurusan" value="{{ old('jurusan', $kelas->jurusan) }}"
                             placeholder="Contoh: IPA, IPS, atau kosongkan">
                         @error('jurusan')
                             <div class="invalid-feedback">{{ $message }}</div>
@@ -68,13 +68,13 @@
                             name="tahun_ajaran" required>
                             <option value="">-- Pilih Tahun Ajaran --</option>
                             <option value="2024/2025"
-                                {{ old('tahun_ajaran', $kela->tahun_ajaran) == '2024/2025' ? 'selected' : '' }}>2024/2025
+                                {{ old('tahun_ajaran', $kelas->tahun_ajaran) == '2024/2025' ? 'selected' : '' }}>2024/2025
                             </option>
                             <option value="2025/2026"
-                                {{ old('tahun_ajaran', $kela->tahun_ajaran) == '2025/2026' ? 'selected' : '' }}>2025/2026
+                                {{ old('tahun_ajaran', $kelas->tahun_ajaran) == '2025/2026' ? 'selected' : '' }}>2025/2026
                             </option>
                             <option value="2026/2027"
-                                {{ old('tahun_ajaran', $kela->tahun_ajaran) == '2026/2027' ? 'selected' : '' }}>2026/2027
+                                {{ old('tahun_ajaran', $kelas->tahun_ajaran) == '2026/2027' ? 'selected' : '' }}>2026/2027
                             </option>
                         </select>
                         @error('tahun_ajaran')
@@ -92,7 +92,7 @@
                             <option value="">-- Pilih Wali Kelas --</option>
                             @foreach ($guru_list as $guru)
                                 <option value="{{ $guru->id }}"
-                                    {{ old('wali_kelas_id', $kela->wali_kelas_id) == $guru->id ? 'selected' : '' }}>
+                                    {{ old('wali_kelas_id', $kelas->wali_kelas_id) == $guru->id ? 'selected' : '' }}>
                                     {{ $guru->nama }} - {{ $guru->nip ?? 'Tanpa NIP' }}
                                 </option>
                             @endforeach
@@ -111,7 +111,7 @@
                             <option value="">-- Pilih Ketua Kelas --</option>
                             @foreach ($ketua_kelas_list as $siswa)
                                 <option value="{{ $siswa->id }}"
-                                    {{ old('ketua_kelas_user_id', $kela->ketua_kelas_user_id) == $siswa->id ? 'selected' : '' }}>
+                                    {{ old('ketua_kelas_user_id', $kelas->ketua_kelas_user_id) == $siswa->id ? 'selected' : '' }}>
                                     {{ $siswa->nama }} - {{ $siswa->username }}
                                 </option>
                             @endforeach
@@ -128,7 +128,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Update Kelas
                         </button>
-                        <a href="{{ route('admin.kelas.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.kelas') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Batal
                         </a>
                     </div>
@@ -143,15 +143,15 @@
                     <tbody>
                         <tr>
                             <td><strong>Dibuat:</strong></td>
-                            <td>{{ $kela->created_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $kelas->created_at->format('d/m/Y H:i') }}</td>
                         </tr>
                         <tr>
                             <td><strong>Terakhir Update:</strong></td>
-                            <td>{{ $kela->updated_at->format('d/m/Y H:i') }}</td>
+                            <td>{{ $kelas->updated_at->format('d/m/Y H:i') }}</td>
                         </tr>
                         <tr>
                             <td><strong>Total Jadwal:</strong></td>
-                            <td>{{ $kela->jadwalMengajar->count() }} mata pelajaran</td>
+                            <td>{{ $kelas->jadwalMengajar->count() }} mata pelajaran</td>
                         </tr>
                     </tbody>
                 </table>

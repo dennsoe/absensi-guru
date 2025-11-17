@@ -8,7 +8,7 @@
             <h1 class="page-title">Tambah Kelas Baru</h1>
             <p class="page-subtitle">Form untuk menambahkan data kelas baru</p>
         </div>
-        <a href="{{ route('admin.kelas.index') }}" class="btn btn-outline-secondary">
+        <a href="{{ route('admin.kelas') }}" class="btn btn-outline-secondary">
             <i class="bi bi-arrow-left"></i> Kembali
         </a>
     </div>
@@ -119,7 +119,7 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-check-circle"></i> Simpan Kelas
                         </button>
-                        <a href="{{ route('admin.kelas.index') }}" class="btn btn-secondary">
+                        <a href="{{ route('admin.kelas') }}" class="btn btn-secondary">
                             <i class="bi bi-x-circle"></i> Batal
                         </a>
                     </div>

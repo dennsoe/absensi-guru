@@ -154,7 +154,7 @@
                 <h5 class="mb-0">Riwayat Absensi</h5>
             </div>
             <div class="card-body">
-                @if ($absensis->count() > 0)
+                @if ($absensi_list->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -171,7 +171,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($absensis as $absensi)
+                                @foreach ($absensi_list as $absensi)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>{{ \Carbon\Carbon::parse($absensi->tanggal)->translatedFormat('d M Y') }}</td>
@@ -182,14 +182,13 @@
                                         <td>{{ $absensi->waktu_absen ? \Carbon\Carbon::parse($absensi->waktu_absen)->format('H:i') : '-' }}
                                         </td>
                                         <td>
-                                            @if ($absensi->status == 'hadir')
+                                            @if ($absensi->status_kehadiran == 'hadir')
                                                 <span class="badge bg-success">Hadir</span>
-                                            @elseif($absensi->status == 'terlambat')
+                                            @elseif($absensi->status_kehadiran == 'terlambat')
                                                 <span class="badge bg-warning">Terlambat</span>
-                                            @elseif($absensi->status == 'izin')
-                                                <span class="badge bg-info">Izin</span>
-                                            @elseif($absensi->status == 'sakit')
-                                                <span class="badge bg-info">Sakit</span>
+                                            @elseif(in_array($absensi->status_kehadiran, ['izin', 'sakit', 'cuti', 'dinas']))
+                                                <span
+                                                    class="badge bg-info">{{ ucfirst($absensi->status_kehadiran) }}</span>
                                             @else
                                                 <span class="badge bg-danger">Alpha</span>
                                             @endif

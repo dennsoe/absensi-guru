@@ -140,7 +140,7 @@
                             </a>
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <a href="{{ route('admin.users.index') }}" class="btn btn-outline-success w-100 py-3">
+                            <a href="{{ route('admin.users') }}" class="btn btn-outline-success w-100 py-3">
                                 <i class="bi bi-people-fill d-block mb-2" style="font-size: 2rem;"></i>
                                 Kelola User
                             </a>

@@ -15,7 +15,7 @@
 
     {{-- Filter & Search --}}
     <div class="page-section">
-        <form method="GET" action="{{ route('admin.kelas.index') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.kelas') }}" class="row g-3">
             <div class="col-md-4">
                 <input type="text" name="search" class="form-control" placeholder="Cari nama kelas atau jurusan..."
                     value="{{ request('search') }}">
@@ -43,7 +43,7 @@
                 </button>
             </div>
             <div class="col-md-2">
-                <a href="{{ route('admin.kelas.index') }}" class="btn btn-outline-secondary w-100">
+                <a href="{{ route('admin.kelas') }}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-x-circle"></i> Reset
                 </a>
             </div>

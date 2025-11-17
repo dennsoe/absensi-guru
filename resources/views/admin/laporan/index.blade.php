@@ -163,7 +163,7 @@
                 <h5 class="mb-0">Data Absensi</h5>
             </div>
             <div class="card-body">
-                @if ($absensis->count() > 0)
+                @if ($absensi_list->count() > 0)
                     <div class="table-responsive">
                         <table class="table table-hover">
                             <thead>
@@ -180,9 +180,9 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($absensis as $absensi)
+                                @foreach ($absensi_list as $absensi)
                                     <tr>
-                                        <td>{{ $absensis->firstItem() + $loop->index }}</td>
+                                        <td>{{ $absensi_list->firstItem() + $loop->index }}</td>
                                         <td>{{ \Carbon\Carbon::parse($absensi->tanggal)->translatedFormat('d M Y') }}</td>
                                         <td>{{ $absensi->guru->nama }}</td>
                                         <td>{{ $absensi->jadwal->kelas->nama_kelas }}</td>
@@ -190,14 +190,16 @@
                                         <td>{{ ucfirst($absensi->jadwal->hari) }}</td>
                                         <td>{{ $absensi->jadwal->jam_mulai }} - {{ $absensi->jadwal->jam_selesai }}</td>
                                         <td>
-                                            @if ($absensi->status == 'hadir')
+                                            @if ($absensi->status_kehadiran == 'hadir')
                                                 <span class="badge bg-success">Hadir</span>
-                                            @elseif($absensi->status == 'terlambat')
+                                            @elseif($absensi->status_kehadiran == 'terlambat')
                                                 <span class="badge bg-warning">Terlambat</span>
-                                            @elseif($absensi->status == 'izin')
+                                            @elseif(
+                                                $absensi->status_kehadiran == 'izin' ||
+                                                    $absensi->status_kehadiran == 'sakit' ||
+                                                    $absensi->status_kehadiran == 'cuti' ||
+                                                    $absensi->status_kehadiran == 'dinas')
                                                 <span class="badge bg-info">Izin</span>
-                                            @elseif($absensi->status == 'sakit')
-                                                <span class="badge bg-info">Sakit</span>
                                             @else
                                                 <span class="badge bg-danger">Alpha</span>
                                             @endif
@@ -210,7 +212,7 @@
                         </table>
                     </div>
                     <div class="mt-3">
-                        {{ $absensis->links() }}
+                        {{ $absensi_list->links() }}
                     </div>
                 @else
                     <div class="text-center py-5">

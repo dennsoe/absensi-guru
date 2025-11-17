@@ -15,7 +15,7 @@
 
     {{-- Filter & Search --}}
     <div class="page-section">
-        <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3">
+        <form method="GET" action="{{ route('admin.users') }}" class="row g-3">
             <div class="col-md-4">
                 <input type="text" name="search" class="form-control" placeholder="Cari nama, username, atau NIP..."
                     value="{{ request('search') }}">
@@ -39,7 +39,7 @@
                 </button>
             </div>
             <div class="col-md-3">
-                <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary w-100">
+                <a href="{{ route('admin.users') }}" class="btn btn-outline-secondary w-100">
                     <i class="bi bi-x-circle"></i> Reset
                 </a>
             </div>
