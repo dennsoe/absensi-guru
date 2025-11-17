@@ -155,7 +155,8 @@ class AdminController extends Controller
                 ->with('error', 'Akses ditolak.');
         }
 
-        $guru_list = Guru::whereDoesntHave('user')->get();
+        // Ambil semua guru (izinkan 1 guru punya multiple user dengan role berbeda)
+        $guru_list = Guru::orderBy('nama', 'asc')->get();
         $kelas_list = Kelas::all();
 
         return view('admin.users.create', compact('guru_list', 'kelas_list'));
@@ -248,9 +249,8 @@ class AdminController extends Controller
 
         $user_edit = User::with(['guru', 'kelas'])->findOrFail($id);
 
-        $guru_list = Guru::whereDoesntHave('user')
-            ->orWhere('id', $user_edit->guru_id)
-            ->get();
+        // Ambil semua guru (izinkan 1 guru punya multiple user dengan role berbeda)
+        $guru_list = Guru::orderBy('nama', 'asc')->get();
 
         $kelas_list = Kelas::all();
 
