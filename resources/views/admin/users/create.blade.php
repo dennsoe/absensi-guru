@@ -115,6 +115,69 @@
                         <small class="form-text text-muted">Format: 08xxxxxxxxxx</small>
                     </div>
 
+                    {{-- Field tambahan untuk role Guru (conditional) --}}
+                    <div id="guru-detail-fields" style="display: none;">
+                        <hr class="my-3">
+                        <h6 class="text-muted mb-3">Detail Profil Guru</h6>
+
+                        {{-- Jenis Kelamin --}}
+                        <div class="mb-3">
+                            <label for="jenis_kelamin" class="form-label">Jenis Kelamin</label>
+                            <select class="form-control @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin"
+                                name="jenis_kelamin">
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="L" {{ old('jenis_kelamin') === 'L' ? 'selected' : '' }}>Laki-laki
+                                </option>
+                                <option value="P" {{ old('jenis_kelamin') === 'P' ? 'selected' : '' }}>Perempuan
+                                </option>
+                            </select>
+                            @error('jenis_kelamin')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Tanggal Lahir --}}
+                        <div class="mb-3">
+                            <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+                            <input type="date" class="form-control @error('tanggal_lahir') is-invalid @enderror"
+                                id="tanggal_lahir" name="tanggal_lahir" value="{{ old('tanggal_lahir') }}">
+                            @error('tanggal_lahir')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Alamat --}}
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label">Alamat</label>
+                            <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3">{{ old('alamat') }}</textarea>
+                            @error('alamat')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Status Kepegawaian --}}
+                        <div class="mb-3">
+                            <label for="status_kepegawaian" class="form-label">Status Kepegawaian</label>
+                            <select class="form-control @error('status_kepegawaian') is-invalid @enderror"
+                                id="status_kepegawaian" name="status_kepegawaian">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="PNS" {{ old('status_kepegawaian') === 'PNS' ? 'selected' : '' }}>PNS
+                                </option>
+                                <option value="PPPK" {{ old('status_kepegawaian') === 'PPPK' ? 'selected' : '' }}>PPPK
+                                </option>
+                                <option value="Honorer" {{ old('status_kepegawaian') === 'Honorer' ? 'selected' : '' }}>
+                                    Honorer</option>
+                                <option value="GTY" {{ old('status_kepegawaian') === 'GTY' ? 'selected' : '' }}>GTY
+                                    (Guru Tetap Yayasan)</option>
+                                <option value="GTT" {{ old('status_kepegawaian') === 'GTT' ? 'selected' : '' }}>GTT
+                                    (Guru Tidak Tetap)</option>
+                            </select>
+                            @error('status_kepegawaian')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <hr>
 
                     {{-- Role --}}
@@ -141,10 +204,10 @@
 
                     {{-- Guru (conditional - untuk role yang perlu profil guru) --}}
                     <div class="mb-3" id="guru-field" style="display: none;">
-                        <label for="guru_id" class="form-label">Profil Guru <span class="text-danger">*</span></label>
+                        <label for="guru_id" class="form-label">Profil Guru (Opsional)</label>
                         <select class="form-control @error('guru_id') is-invalid @enderror" id="guru_id"
                             name="guru_id">
-                            <option value="">-- Pilih Guru --</option>
+                            <option value="">-- Buat Profil Baru Otomatis --</option>
                             @foreach ($guru_list as $guru)
                                 <option value="{{ $guru->id }}" {{ old('guru_id') == $guru->id ? 'selected' : '' }}>
                                     {{ $guru->nama }} - {{ $guru->nip ?? 'Tanpa NIP' }}
@@ -154,7 +217,10 @@
                         @error('guru_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
-                        <small class="form-text text-muted">Hubungkan user ini dengan profil guru yang sudah ada</small>
+                        <small class="form-text text-muted">
+                            <strong>Kosongkan</strong> jika guru baru (sistem akan buat profil otomatis), atau
+                            <strong>pilih</strong> jika ingin hubungkan dengan profil guru yang sudah ada
+                        </small>
                     </div>
 
                     {{-- Kelas (conditional - untuk role ketua kelas) --}}
@@ -236,7 +302,8 @@
                                 <li>Field bertanda <span class="text-danger">*</span> wajib diisi</li>
                                 <li>Username harus unik</li>
                                 <li>Password minimal 6 karakter</li>
-                                <li>Role Guru/Staff memerlukan Profil Guru</li>
+                                <li><strong>Guru Baru:</strong> Kosongkan "Profil Guru", sistem akan buat otomatis</li>
+                                <li><strong>Link ke Profil:</strong> Pilih guru dari dropdown jika sudah ada</li>
                                 <li>Role Ketua Kelas memerlukan Kelas</li>
                             </ul>
                         </div>
@@ -261,38 +328,73 @@
             }
         }
 
-        const roleSelect = document.getElementById('role');
-        const guruField = document.getElementById('guru-field');
-        const guruSelect = document.getElementById('guru_id');
-        const kelasField = document.getElementById('kelas-field');
-        const kelasSelect = document.getElementById('kelas_id');
+        // Pastikan DOM sudah ready
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Ready - Initializing role selector...');
 
-        roleSelect.addEventListener('change', function() {
-            const roleValue = this.value;
+            const roleSelect = document.getElementById('role');
+            const guruField = document.getElementById('guru-field');
+            const guruSelect = document.getElementById('guru_id');
+            const guruDetailFields = document.getElementById('guru-detail-fields');
+            const kelasField = document.getElementById('kelas-field');
+            const kelasSelect = document.getElementById('kelas_id');
 
-            // Reset visibility
-            guruField.style.display = 'none';
-            kelasField.style.display = 'none';
-            guruSelect.required = false;
-            kelasSelect.required = false;
+            // Debug: log semua element
+            console.log('Elements found:', {
+                roleSelect: roleSelect ? 'YES' : 'NO',
+                guruField: guruField ? 'YES' : 'NO',
+                guruDetailFields: guruDetailFields ? 'YES' : 'NO',
+                kelasField: kelasField ? 'YES' : 'NO'
+            });
 
-            // Show appropriate field based on role
-            if (roleValue === 'ketua_kelas') {
-                // Ketua Kelas = Siswa → Pilih Kelas
-                kelasField.style.display = 'block';
-                kelasSelect.required = true;
-            } else if (roleValue === 'guru' || roleValue === 'guru_piket' || roleValue === 'kepala_sekolah' ||
-                roleValue === 'kurikulum') {
-                // Guru, Guru Piket, Kepala Sekolah, Kurikulum → Pilih Profil Guru
-                guruField.style.display = 'block';
-                guruSelect.required = true;
+            if (!roleSelect) {
+                console.error('Role select tidak ditemukan!');
+                return;
             }
-            // Admin tidak perlu guru_id atau kelas_id
-        });
 
-        // Trigger on page load if role is already selected
-        if (roleSelect.value) {
-            roleSelect.dispatchEvent(new Event('change'));
-        }
+            function toggleFields() {
+                const roleValue = roleSelect.value;
+                console.log('=== Role changed to:', roleValue, '===');
+
+                // Reset semua field
+                if (guruField) guruField.style.display = 'none';
+                if (guruDetailFields) guruDetailFields.style.display = 'none';
+                if (kelasField) kelasField.style.display = 'none';
+                if (guruSelect) guruSelect.required = false;
+                if (kelasSelect) kelasSelect.required = false;
+
+                // Show field sesuai role
+                if (roleValue === 'ketua_kelas') {
+                    console.log('→ Showing Kelas field');
+                    if (kelasField) kelasField.style.display = 'block';
+                    if (kelasSelect) kelasSelect.required = true;
+                } else if (roleValue === 'guru' || roleValue === 'guru_piket' ||
+                    roleValue === 'kepala_sekolah' || roleValue === 'kurikulum') {
+                    console.log('→ Showing Guru fields');
+                    if (guruField) {
+                        guruField.style.display = 'block';
+                        console.log('  ✓ guruField displayed');
+                    }
+                    if (guruDetailFields) {
+                        guruDetailFields.style.display = 'block';
+                        console.log('  ✓ guruDetailFields displayed');
+                    }
+                    if (guruSelect) guruSelect.required = false;
+                } else if (roleValue) {
+                    console.log('→ Role lain (Admin/etc) - no special fields');
+                }
+            }
+
+            // Listen to change event
+            roleSelect.addEventListener('change', toggleFields);
+
+            // Trigger on load jika ada value
+            if (roleSelect.value) {
+                console.log('Triggering initial toggle for value:', roleSelect.value);
+                toggleFields();
+            }
+
+            console.log('Role selector initialized successfully');
+        });
     </script>
 @endpush

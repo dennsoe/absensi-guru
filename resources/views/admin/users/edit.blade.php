@@ -114,6 +114,78 @@
                         <small class="form-text text-muted">Format: 08xxxxxxxxxx</small>
                     </div>
 
+                    {{-- Field tambahan untuk role Guru (conditional) --}}
+                    <div id="guru-detail-fields"
+                        style="{{ in_array(old('role', $user->role), ['guru', 'guru_piket', 'kepala_sekolah', 'kurikulum']) ? '' : 'display: none;' }}">
+                        <hr class="my-3">
+                        <h6 class="text-muted mb-3">Detail Profil Guru</h6>
+
+                        {{-- Jenis Kelamin --}}
+                        <div class="mb-3">
+                            <label for="jenis_kelamin" class="form-label">Jenis Kelamin</label>
+                            <select class="form-control @error('jenis_kelamin') is-invalid @enderror" id="jenis_kelamin"
+                                name="jenis_kelamin">
+                                <option value="">-- Pilih Jenis Kelamin --</option>
+                                <option value="L"
+                                    {{ old('jenis_kelamin', $user->guru->jenis_kelamin ?? '') === 'L' ? 'selected' : '' }}>
+                                    Laki-laki</option>
+                                <option value="P"
+                                    {{ old('jenis_kelamin', $user->guru->jenis_kelamin ?? '') === 'P' ? 'selected' : '' }}>
+                                    Perempuan</option>
+                            </select>
+                            @error('jenis_kelamin')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Tanggal Lahir --}}
+                        <div class="mb-3">
+                            <label for="tanggal_lahir" class="form-label">Tanggal Lahir</label>
+                            <input type="date" class="form-control @error('tanggal_lahir') is-invalid @enderror"
+                                id="tanggal_lahir" name="tanggal_lahir"
+                                value="{{ old('tanggal_lahir', $user->guru && $user->guru->tanggal_lahir ? $user->guru->tanggal_lahir->format('Y-m-d') : '') }}">
+                            @error('tanggal_lahir')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Alamat --}}
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label">Alamat</label>
+                            <textarea class="form-control @error('alamat') is-invalid @enderror" id="alamat" name="alamat" rows="3">{{ old('alamat', $user->guru->alamat ?? '') }}</textarea>
+                            @error('alamat')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Status Kepegawaian --}}
+                        <div class="mb-3">
+                            <label for="status_kepegawaian" class="form-label">Status Kepegawaian</label>
+                            <select class="form-control @error('status_kepegawaian') is-invalid @enderror"
+                                id="status_kepegawaian" name="status_kepegawaian">
+                                <option value="">-- Pilih Status --</option>
+                                <option value="PNS"
+                                    {{ old('status_kepegawaian', $user->guru->status_kepegawaian ?? '') === 'PNS' ? 'selected' : '' }}>
+                                    PNS</option>
+                                <option value="PPPK"
+                                    {{ old('status_kepegawaian', $user->guru->status_kepegawaian ?? '') === 'PPPK' ? 'selected' : '' }}>
+                                    PPPK</option>
+                                <option value="Honorer"
+                                    {{ old('status_kepegawaian', $user->guru->status_kepegawaian ?? '') === 'Honorer' ? 'selected' : '' }}>
+                                    Honorer</option>
+                                <option value="GTY"
+                                    {{ old('status_kepegawaian', $user->guru->status_kepegawaian ?? '') === 'GTY' ? 'selected' : '' }}>
+                                    GTY (Guru Tetap Yayasan)</option>
+                                <option value="GTT"
+                                    {{ old('status_kepegawaian', $user->guru->status_kepegawaian ?? '') === 'GTT' ? 'selected' : '' }}>
+                                    GTT (Guru Tidak Tetap)</option>
+                            </select>
+                            @error('status_kepegawaian')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+                    </div>
+
                     <hr>
 
                     {{-- Role --}}
@@ -279,6 +351,7 @@
         const roleSelect = document.getElementById('role');
         const guruField = document.getElementById('guru-field');
         const guruSelect = document.getElementById('guru_id');
+        const guruDetailFields = document.getElementById('guru-detail-fields');
         const kelasField = document.getElementById('kelas-field');
         const kelasSelect = document.getElementById('kelas_id');
 
@@ -287,6 +360,7 @@
 
             // Reset visibility
             guruField.style.display = 'none';
+            guruDetailFields.style.display = 'none';
             kelasField.style.display = 'none';
             guruSelect.required = false;
             kelasSelect.required = false;
@@ -298,9 +372,10 @@
                 kelasSelect.required = true;
             } else if (roleValue === 'guru' || roleValue === 'guru_piket' || roleValue === 'kepala_sekolah' ||
                 roleValue === 'kurikulum') {
-                // Guru, Guru Piket, Kepala Sekolah, Kurikulum → Pilih Profil Guru
+                // Guru, Guru Piket, Kepala Sekolah, Kurikulum → Tampilkan field profil guru
                 guruField.style.display = 'block';
-                guruSelect.required = true;
+                guruDetailFields.style.display = 'block';
+                guruSelect.required = false;
             }
             // Admin tidak perlu guru_id atau kelas_id
         });

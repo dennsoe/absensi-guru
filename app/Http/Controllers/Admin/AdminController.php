@@ -179,6 +179,11 @@ class AdminController extends Controller
             'kelas_id' => 'nullable|exists:kelas,id',
             'status' => 'required|in:aktif,nonaktif',
             'foto_profil' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            // Field tambahan untuk profil guru
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tanggal_lahir' => 'nullable|date',
+            'alamat' => 'nullable|string',
+            'status_kepegawaian' => 'nullable|in:PNS,PPPK,Honorer,GTY,GTT',
         ]);
 
         try {
@@ -189,11 +194,23 @@ class AdminController extends Controller
                     ->with('error', 'Akses ditolak.');
             }
 
-            // Validasi: jika role memerlukan profil guru, harus ada guru_id
+            // Auto-create profil guru jika role memerlukan guru tapi belum dipilih
             $rolesYangPerluGuru = ['guru', 'guru_piket', 'kepala_sekolah', 'kurikulum'];
-            if (in_array($request->role, $rolesYangPerluGuru) && !$request->guru_id) {
-                return back()->withErrors(['guru_id' => 'Profil guru harus dipilih untuk role ' . ucwords(str_replace('_', ' ', $request->role)) . '.'])
-                    ->withInput();
+            $guru_id = $request->guru_id;
+
+            if (in_array($request->role, $rolesYangPerluGuru) && !$guru_id) {
+                // Buat profil guru baru otomatis dengan data lengkap
+                $guruBaru = Guru::create([
+                    'nama' => $request->nama,
+                    'nip' => $request->nip,
+                    'email' => $request->email,
+                    'no_hp' => $request->no_hp,
+                    'jenis_kelamin' => $request->jenis_kelamin,
+                    'tanggal_lahir' => $request->tanggal_lahir,
+                    'alamat' => $request->alamat,
+                    'status_kepegawaian' => $request->status_kepegawaian ?? 'Honorer',
+                ]);
+                $guru_id = $guruBaru->id;
             }
 
             // Validasi: jika role ketua_kelas, harus ada kelas_id
@@ -210,7 +227,7 @@ class AdminController extends Controller
                 'nip' => $request->nip,
                 'no_hp' => $request->no_hp,
                 'role' => $request->role,
-                'guru_id' => $request->guru_id,
+                'guru_id' => $guru_id,
                 'kelas_id' => $request->kelas_id,
                 'status' => $request->status,
             ];
@@ -278,6 +295,11 @@ class AdminController extends Controller
             'kelas_id' => 'nullable|exists:kelas,id',
             'status' => 'required|in:aktif,nonaktif',
             'foto_profil' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
+            // Field tambahan untuk profil guru
+            'jenis_kelamin' => 'nullable|in:L,P',
+            'tanggal_lahir' => 'nullable|date',
+            'alamat' => 'nullable|string',
+            'status_kepegawaian' => 'nullable|in:PNS,PPPK,Honorer,GTY,GTT',
         ]);
 
         try {
@@ -290,6 +312,42 @@ class AdminController extends Controller
 
             $user_edit = User::findOrFail($id);
 
+            // Auto-create profil guru jika role memerlukan guru tapi belum ada
+            $rolesYangPerluGuru = ['guru', 'guru_piket', 'kepala_sekolah', 'kurikulum'];
+            $guru_id = $request->guru_id ?: $user_edit->guru_id;
+
+            if (in_array($request->role, $rolesYangPerluGuru)) {
+                if ($guru_id) {
+                    // Update profil guru yang sudah ada
+                    $guru = Guru::find($guru_id);
+                    if ($guru) {
+                        $guru->update([
+                            'nama' => $request->nama,
+                            'nip' => $request->nip,
+                            'email' => $request->email,
+                            'no_hp' => $request->no_hp,
+                            'jenis_kelamin' => $request->jenis_kelamin,
+                            'tanggal_lahir' => $request->tanggal_lahir,
+                            'alamat' => $request->alamat,
+                            'status_kepegawaian' => $request->status_kepegawaian,
+                        ]);
+                    }
+                } else {
+                    // Buat profil guru baru jika belum ada
+                    $guruBaru = Guru::create([
+                        'nama' => $request->nama,
+                        'nip' => $request->nip,
+                        'email' => $request->email,
+                        'no_hp' => $request->no_hp,
+                        'jenis_kelamin' => $request->jenis_kelamin,
+                        'tanggal_lahir' => $request->tanggal_lahir,
+                        'alamat' => $request->alamat,
+                        'status_kepegawaian' => $request->status_kepegawaian ?? 'Honorer',
+                    ]);
+                    $guru_id = $guruBaru->id;
+                }
+            }
+
             $data = [
                 'username' => $request->username,
                 'nama' => $request->nama,
@@ -297,7 +355,7 @@ class AdminController extends Controller
                 'nip' => $request->nip,
                 'no_hp' => $request->no_hp,
                 'role' => $request->role,
-                'guru_id' => $request->guru_id,
+                'guru_id' => $guru_id,
                 'kelas_id' => $request->kelas_id,
                 'status' => $request->status,
             ];
