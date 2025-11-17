@@ -1,0 +1,98 @@
+/* Guru Dashboard Styles */
+.stat-card {
+    transition: all 0.3s ease;
+    border-radius: 12px;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+/* Alert Notification Styles */
+.alert-notification {
+    border-left: 4px solid;
+    border-radius: 8px;
+    animation: slideIn 0.5s ease;
+    position: relative;
+}
+
+/* Alert Permanent - Tidak bisa di-dismiss */
+.alert-permanent {
+    padding-right: 1rem !important;
+}
+
+.alert-permanent .btn-close {
+    display: none !important;
+}
+
+/* Alert Danger dengan animasi pulse untuk urgent */
+.alert-danger.alert-permanent {
+    animation: slideIn 0.5s ease, pulse 2s infinite;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(220, 53, 69, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 0 10px rgba(220, 53, 69, 0);
+    }
+}
+
+/* Alert Warning dengan subtle pulse */
+.alert-warning.alert-permanent {
+    animation: slideIn 0.5s ease, subtlePulse 3s infinite;
+}
+
+@keyframes subtlePulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.3);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+    }
+}
+
+.jadwal-card {
+    transition: all 0.2s ease;
+    border-left: 4px solid transparent;
+}
+
+.jadwal-card:hover {
+    border-left-color: #0d6efd;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.jadwal-active {
+    border-left-color: #198754 !important;
+    background: linear-gradient(90deg, rgba(25,135,84,0.05) 0%, rgba(255,255,255,0) 100%);
+}
+
+.jadwal-upcoming {
+    border-left-color: #ffc107 !important;
+    background: linear-gradient(90deg, rgba(255,193,7,0.05) 0%, rgba(255,255,255,0) 100%);
+}
+
+@media (max-width: 768px) {
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    .stat-card h2 {
+        font-size: 1.75rem;
+    }
+    .alert-notification {
+        font-size: 0.9rem;
+    }
+}
