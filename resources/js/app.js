@@ -1,5 +1,14 @@
 import './bootstrap';
 
+// Import Bootstrap JS
+import * as bootstrap from 'bootstrap';
+window.bootstrap = bootstrap;
+
+// Import Alpine.js
+import Alpine from 'alpinejs';
+window.Alpine = Alpine;
+Alpine.start();
+
 /**
  * SIAG NEKAS - Main JavaScript
  * SMK Negeri Kasomalang
