@@ -28,10 +28,8 @@
     <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css"
         rel="stylesheet" />
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{{ asset('assets/css/guru-dashboard.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/guru-jadwal.css') }}">
-    @vite(['resources/css/app.css'])
+    <!-- Custom CSS via Vite -->
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
     @stack('styles')
 </head>
@@ -78,21 +76,16 @@
         </div>
     </div>
 
+    <!-- jQuery HARUS PERTAMA (required for Bootstrap components & Select2) -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
     <!-- Bootstrap JS Local -->
     <script src="{{ asset('assets/vendor/bootstrap-5.3.3/js/bootstrap.bundle.min.js') }}"></script>
-
-    <!-- jQuery (required for Select2) -->
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-    <!-- Alpine.js -->
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
-    <!-- Custom JS -->
-    <script src="{{ asset('assets/js/app.js') }}"></script>
-
+    <!-- Custom JS sudah diload via Vite di head section -->
     @stack('scripts')
 </body>
 

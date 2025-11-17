@@ -6,14 +6,14 @@
     </button>
 
     {{-- Date & Time Display --}}
-    <div class="navbar-datetime" x-data="dateTime()" x-init="updateTime()">
+    <div class="navbar-datetime" id="navbarDateTime">
         <div>
             <i class="bi bi-calendar3"></i>
-            <span x-text="currentDate"></span>
+            <span id="currentDate">Loading...</span>
         </div>
         <div>
             <i class="bi bi-clock"></i>
-            <span x-text="currentTime"></span>
+            <span id="currentTime">Loading...</span>
         </div>
     </div>
 
