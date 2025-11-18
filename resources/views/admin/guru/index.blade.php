@@ -126,6 +126,10 @@
                                         </td>
                                         <td class="text-center">
                                             <div class="btn-group btn-group-sm" role="group">
+                                                <a href="{{ route('admin.guru.show', $guru->id) }}"
+                                                    class="btn btn-outline-info" title="Detail">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
                                                 <a href="{{ route('admin.guru.edit', $guru->id) }}"
                                                     class="btn btn-outline-primary" title="Edit">
                                                     <i class="bi bi-pencil"></i>

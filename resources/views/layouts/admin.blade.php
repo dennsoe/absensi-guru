@@ -1,0 +1,542 @@
+@extends('layouts.base')
+
+@section('body-class', 'admin-layout')
+
+@section('content')
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('assets/images/logonekas.png') }}" alt="Logo" class="sidebar-logo">
+                <div>
+                    <h5 class="mb-0" style="font-size: var(--font-size-base); font-weight: var(--font-weight-semibold);">
+                        SIAG NEKAS</h5>
+                    <small class="text-muted" style="font-size: var(--font-size-xs);">Admin Panel</small>
+                </div>
+            </div>
+            <button class="btn btn-sm btn-ghost sidebar-toggle d-lg-none" id="sidebarClose">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+
+        <div class="sidebar-body">
+            <!-- User Profile Section -->
+            <div class="sidebar-profile">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="avatar avatar-lg">
+                        <img src="{{ auth()->user()->foto ?? asset('assets/images/default-avatar.png') }}" alt="Avatar">
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-semibold">{{ auth()->user()->name }}</div>
+                        <small class="text-muted">Administrator</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Menu -->
+            <nav class="sidebar-nav">
+                <div class="sidebar-nav-title">Menu Utama</div>
+
+                <a href="{{ route('admin.dashboard') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                    <i class="bi bi-speedometer2"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <!-- Manage Users -->
+                <div class="sidebar-nav-title">Manajemen Pengguna</div>
+
+                <a href="{{ route('admin.users.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                    <i class="bi bi-people"></i>
+                    <span>Daftar User</span>
+                </a>
+
+                <a href="{{ route('admin.guru.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.guru.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-badge"></i>
+                    <span>Data Guru</span>
+                </a>
+
+                <!-- Absensi Management -->
+                <div class="sidebar-nav-title">Absensi</div>
+
+                <a href="{{ route('admin.absensi.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.absensi.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar-check"></i>
+                    <span>Data Absensi</span>
+                </a>
+
+                <a href="{{ route('admin.qr-codes.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.qr-codes.*') ? 'active' : '' }}">
+                    <i class="bi bi-qr-code"></i>
+                    <span>QR Code</span>
+                </a>
+
+                <!-- Jadwal -->
+                <div class="sidebar-nav-title">Jadwal</div>
+
+                <a href="{{ route('admin.jadwal.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.jadwal.*') ? 'active' : '' }}">
+                    <i class="bi bi-calendar3"></i>
+                    <span>Jadwal Mengajar</span>
+                </a>
+
+                <!-- Izin & Cuti -->
+                <div class="sidebar-nav-title">Izin & Cuti</div>
+
+                <a href="{{ route('admin.izin-cuti.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.izin-cuti.*') ? 'active' : '' }}">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <span>Permohonan Izin</span>
+                    @if (isset($pendingIzinCount) && $pendingIzinCount > 0)
+                        <span class="badge badge-danger ms-auto">{{ $pendingIzinCount }}</span>
+                    @endif
+                </a>
+
+                <a href="{{ route('admin.guru-pengganti.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.guru-pengganti.*') ? 'active' : '' }}">
+                    <i class="bi bi-person-plus"></i>
+                    <span>Guru Pengganti</span>
+                </a>
+
+                <!-- Laporan -->
+                <div class="sidebar-nav-title">Laporan</div>
+
+                <a href="{{ route('admin.laporan.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.laporan.*') ? 'active' : '' }}">
+                    <i class="bi bi-file-bar-graph"></i>
+                    <span>Laporan</span>
+                </a>
+
+                <a href="{{ route('admin.rekap.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.rekap.*') ? 'active' : '' }}">
+                    <i class="bi bi-clipboard-data"></i>
+                    <span>Rekap Absensi</span>
+                </a>
+
+                <!-- Settings -->
+                <div class="sidebar-nav-title">Pengaturan</div>
+
+                <a href="{{ route('admin.settings.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.settings.*') ? 'active' : '' }}">
+                    <i class="bi bi-gear"></i>
+                    <span>Pengaturan Sistem</span>
+                </a>
+
+                <a href="{{ route('admin.logs.index') }}"
+                    class="sidebar-nav-item {{ request()->routeIs('admin.logs.*') ? 'active' : '' }}">
+                    <i class="bi bi-clock-history"></i>
+                    <span>Activity Log</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="sidebar-footer">
+            <form method="POST" action="{{ route('logout') }}" class="w-100">
+                @csrf
+                <button type="submit" class="sidebar-nav-item w-100 border-0 bg-transparent text-start">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Sidebar Overlay (Mobile) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- Main Content Wrapper -->
+    <div class="main-wrapper">
+        <!-- Top Bar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="btn btn-sm btn-ghost d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="d-none d-md-block">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}">Home</a></li>
+                        @yield('breadcrumb')
+                    </ol>
+                </nav>
+            </div>
+
+            <div class="topbar-right">
+                <!-- Date Time -->
+                <div class="topbar-datetime d-none d-md-flex">
+                    <div class="text-end">
+                        <div class="fw-medium" id="currentDate">Loading...</div>
+                        <div class="text-muted small" id="currentTime">Loading...</div>
+                    </div>
+                </div>
+
+                <!-- Notifications -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-ghost position-relative" data-bs-toggle="dropdown">
+                        <i class="bi bi-bell fs-5"></i>
+                        @if (isset($unreadNotifications) && $unreadNotifications > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                {{ $unreadNotifications > 99 ? '99+' : $unreadNotifications }}
+                            </span>
+                        @endif
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-lg">
+                        <div class="dropdown-header d-flex justify-content-between align-items-center">
+                            <span class="fw-semibold">Notifikasi</span>
+                            <a href="{{ route('admin.notifications.mark-all-read') }}" class="text-primary small">Tandai
+                                semua dibaca</a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <!-- Notification items would go here -->
+                        <div class="p-3 text-center text-muted">
+                            <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+                            Tidak ada notifikasi
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Profile Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-ghost d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                        <div class="avatar avatar-sm">
+                            <img src="{{ auth()->user()->foto ?? asset('assets/images/default-avatar.png') }}"
+                                alt="Avatar">
+                        </div>
+                        <span class="d-none d-md-inline">{{ auth()->user()->name }}</span>
+                        <i class="bi bi-chevron-down"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-end">
+                        <div class="dropdown-header">
+                            <div class="fw-semibold">{{ auth()->user()->name }}</div>
+                            <div class="text-muted small">{{ auth()->user()->email }}</div>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="{{ route('admin.profile') }}" class="dropdown-item">
+                            <i class="bi bi-person me-2"></i> Profile
+                        </a>
+                        <a href="{{ route('admin.settings.account') }}" class="dropdown-item">
+                            <i class="bi bi-gear me-2"></i> Pengaturan
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item text-danger">
+                                <i class="bi bi-box-arrow-right me-2"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <main class="main-content">
+            @yield('main-content')
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+                <div class="text-muted small">
+                    &copy; {{ date('Y') }} SIAG NEKAS - SMK Negeri Kasomalang
+                </div>
+                <div class="text-muted small">
+                    Version 1.0.0
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    @push('styles')
+        <style>
+            /* Sidebar Styles */
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: var(--sidebar-width);
+                height: 100vh;
+                background: var(--color-white);
+                border-right: 1px solid var(--color-gray-200);
+                display: flex;
+                flex-direction: column;
+                z-index: var(--z-fixed);
+                transition: transform var(--transition-base);
+            }
+
+            .sidebar-header {
+                padding: var(--spacing-5) var(--spacing-6);
+                border-bottom: 1px solid var(--color-gray-200);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .sidebar-logo {
+                width: 40px;
+                height: 40px;
+                object-fit: contain;
+            }
+
+            .sidebar-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: var(--spacing-4) 0;
+            }
+
+            .sidebar-profile {
+                padding: var(--spacing-4) var(--spacing-6);
+                margin-bottom: var(--spacing-4);
+                border-bottom: 1px solid var(--color-gray-100);
+            }
+
+            .sidebar-nav-title {
+                padding: var(--spacing-3) var(--spacing-6);
+                font-size: var(--font-size-xs);
+                font-weight: var(--font-weight-semibold);
+                color: var(--color-gray-500);
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-top: var(--spacing-4);
+            }
+
+            .sidebar-nav-title:first-child {
+                margin-top: 0;
+            }
+
+            .sidebar-nav-item {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-3);
+                padding: var(--spacing-3) var(--spacing-6);
+                color: var(--color-gray-700);
+                text-decoration: none;
+                transition: all var(--transition-fast);
+            }
+
+            .sidebar-nav-item:hover {
+                background: var(--color-gray-50);
+                color: var(--color-primary);
+            }
+
+            .sidebar-nav-item.active {
+                background: var(--color-primary-light);
+                color: var(--color-primary);
+                font-weight: var(--font-weight-medium);
+                border-right: 3px solid var(--color-primary);
+            }
+
+            .sidebar-nav-item i {
+                font-size: var(--font-size-lg);
+            }
+
+            .sidebar-footer {
+                padding: var(--spacing-4) 0;
+                border-top: 1px solid var(--color-gray-200);
+            }
+
+            /* Main Wrapper */
+            .main-wrapper {
+                margin-left: var(--sidebar-width);
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Topbar */
+            .topbar {
+                height: var(--topbar-height);
+                background: var(--color-white);
+                border-bottom: 1px solid var(--color-gray-200);
+                padding: 0 var(--spacing-6);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: sticky;
+                top: 0;
+                z-index: var(--z-sticky);
+            }
+
+            .topbar-left,
+            .topbar-right {
+                display: flex;
+                align-items: center;
+                gap: var(--spacing-4);
+            }
+
+            .topbar-datetime {
+                padding: var(--spacing-2) var(--spacing-4);
+                background: var(--color-gray-50);
+                border-radius: var(--radius-base);
+            }
+
+            /* Main Content */
+            .main-content {
+                flex: 1;
+                padding: var(--spacing-6);
+                background: var(--color-gray-50);
+            }
+
+            /* Footer */
+            .footer {
+                padding: var(--spacing-5) var(--spacing-6);
+                background: var(--color-white);
+                border-top: 1px solid var(--color-gray-200);
+            }
+
+            /* Avatar */
+            .avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: var(--radius-full);
+                overflow: hidden;
+            }
+
+            .avatar img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+
+            .avatar-sm {
+                width: 32px;
+                height: 32px;
+            }
+
+            .avatar-lg {
+                width: 48px;
+                height: 48px;
+            }
+
+            /* Mobile Sidebar */
+            .sidebar-overlay {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: calc(var(--z-fixed) - 1);
+            }
+
+            @media (max-width: 991px) {
+                .sidebar {
+                    transform: translateX(-100%);
+                }
+
+                .sidebar.show {
+                    transform: translateX(0);
+                }
+
+                .sidebar-overlay.show {
+                    display: block;
+                }
+
+                .main-wrapper {
+                    margin-left: 0;
+                }
+            }
+
+            /* Button Ghost */
+            .btn-ghost {
+                background: transparent;
+                border: none;
+                color: var(--color-gray-700);
+            }
+
+            .btn-ghost:hover {
+                background: var(--color-gray-100);
+                color: var(--color-gray-900);
+            }
+
+            /* Dropdown Menu Large */
+            .dropdown-menu-lg {
+                min-width: 320px;
+                max-height: 400px;
+                overflow-y: auto;
+            }
+
+            /* Breadcrumb */
+            .breadcrumb {
+                background: transparent;
+                padding: 0;
+                margin: 0;
+            }
+
+            .breadcrumb-item a {
+                color: var(--color-gray-600);
+                text-decoration: none;
+            }
+
+            .breadcrumb-item.active {
+                color: var(--color-gray-900);
+            }
+        </style>
+    @endpush
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const sidebar = document.getElementById('sidebar');
+                const sidebarToggle = document.getElementById('sidebarToggle');
+                const sidebarClose = document.getElementById('sidebarClose');
+                const sidebarOverlay = document.getElementById('sidebarOverlay');
+
+                // Toggle sidebar on mobile
+                if (sidebarToggle) {
+                    sidebarToggle.addEventListener('click', function() {
+                        sidebar.classList.add('show');
+                        sidebarOverlay.classList.add('show');
+                    });
+                }
+
+                // Close sidebar
+                function closeSidebar() {
+                    sidebar.classList.remove('show');
+                    sidebarOverlay.classList.remove('show');
+                }
+
+                if (sidebarClose) {
+                    sidebarClose.addEventListener('click', closeSidebar);
+                }
+
+                if (sidebarOverlay) {
+                    sidebarOverlay.addEventListener('click', closeSidebar);
+                }
+
+                // Update date time
+                function updateDateTime() {
+                    const now = new Date();
+                    const dateOptions = {
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    };
+                    const timeOptions = {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                    };
+
+                    const dateStr = now.toLocaleDateString('id-ID', dateOptions);
+                    const timeStr = now.toLocaleTimeString('id-ID', timeOptions);
+
+                    const dateEl = document.getElementById('currentDate');
+                    const timeEl = document.getElementById('currentTime');
+
+                    if (dateEl) dateEl.textContent = dateStr;
+                    if (timeEl) timeEl.textContent = timeStr;
+                }
+
+                updateDateTime();
+                setInterval(updateDateTime, 1000);
+            });
+        </script>
+    @endpush
+
+@endsection

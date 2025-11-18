@@ -16,12 +16,16 @@
                         <p class="text-muted">Detail kehadiran {{ $guru->nama }}</p>
                     </div>
                     <div>
-                        <button class="btn btn-outline-primary me-2" onclick="alert('Fitur Export PDF akan segera hadir')">
-                            <i class="bi bi-file-pdf"></i> Export PDF
-                        </button>
-                        <button class="btn btn-outline-success" onclick="alert('Fitur Export Excel akan segera hadir')">
-                            <i class="bi bi-file-excel"></i> Export Excel
-                        </button>
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('admin.laporan.export-pdf.per-guru', ['guru_id' => $guru->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                class="btn btn-danger" target="_blank" title="Export ke PDF">
+                                <i class="bi bi-file-pdf"></i> Export PDF
+                            </a>
+                            <a href="{{ route('admin.laporan.export-excel.per-guru', ['guru_id' => $guru->id, 'bulan' => $bulan, 'tahun' => $tahun]) }}"
+                                class="btn btn-success" title="Export ke Excel">
+                                <i class="bi bi-file-excel"></i> Export Excel
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>

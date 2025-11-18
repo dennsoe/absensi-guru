@@ -27,15 +27,15 @@ class BackupDatabaseCommand extends Command
     public function handle()
     {
         $this->info('🚀 Starting database backup...');
-        
+
         if ($this->option('sync')) {
             // Run backup synchronously
             $this->info('Running backup synchronously...');
-            
+
             try {
                 $job = new AutoBackupDatabase();
                 $job->handle();
-                
+
                 $this->info('✅ Database backup completed successfully!');
                 return 0;
             } catch (\Exception $e) {

@@ -577,6 +577,73 @@ class AdminController extends Controller
     }
 
     /**
+     * Show Detail Guru
+     */
+    public function showGuru($id)
+    {
+        $user = Auth::user();
+
+        if ($user->role !== 'admin') {
+            return redirect()->route('dashboard')
+                ->with('error', 'Akses ditolak.');
+        }
+
+        $guru = Guru::with(['user', 'jadwalMengajar.mataPelajaran', 'jadwalMengajar.kelas'])
+            ->findOrFail($id);
+
+        // Statistik
+        $totalJadwal = $guru->jadwalMengajar()->where('status', 'aktif')->count();
+
+        $totalAbsensi = Absensi::where('guru_id', $guru->id)->count();
+
+        $totalIzin = IzinCuti::where('guru_id', $guru->id)
+            ->whereIn('status', ['approved', 'pending'])
+            ->count();
+
+        // Kehadiran bulan ini
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+
+        $hadirBulanIni = Absensi::where('guru_id', $guru->id)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->whereIn('status_kehadiran', ['hadir', 'terlambat'])
+            ->count();
+
+        $totalHariBulanIni = Absensi::where('guru_id', $guru->id)
+            ->whereBetween('tanggal', [$startOfMonth, $endOfMonth])
+            ->count();
+
+        $kehadiranBulanIni = $totalHariBulanIni > 0
+            ? round(($hadirBulanIni / $totalHariBulanIni) * 100, 1)
+            : 0;
+
+        // Jadwal mengajar
+        $jadwalMengajar = $guru->jadwalMengajar()
+            ->with(['mataPelajaran', 'kelas'])
+            ->where('status', 'aktif')
+            ->orderBy('hari')
+            ->orderBy('jam_mulai')
+            ->get();
+
+        // Riwayat absensi terbaru (10 terakhir)
+        $riwayatAbsensi = Absensi::where('guru_id', $guru->id)
+            ->orderBy('tanggal', 'desc')
+            ->orderBy('jam_masuk', 'desc')
+            ->take(10)
+            ->get();
+
+        return view('admin.guru.show', compact(
+            'guru',
+            'totalJadwal',
+            'totalAbsensi',
+            'totalIzin',
+            'kehadiranBulanIni',
+            'jadwalMengajar',
+            'riwayatAbsensi'
+        ));
+    }
+
+    /**
      * Form Edit Guru
      */
     public function editGuru($id)

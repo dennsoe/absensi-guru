@@ -22,13 +22,17 @@
 
                             <div class="mb-3">
                                 <label class="form-label">Jenis Permohonan <span class="text-danger">*</span></label>
-                                <select name="jenis" class="form-select @error('jenis') is-invalid @enderror" required>
+                                <select name="jenis_izin" class="form-select @error('jenis_izin') is-invalid @enderror"
+                                    required>
                                     <option value="">Pilih Jenis</option>
-                                    <option value="izin" {{ old('jenis') === 'izin' ? 'selected' : '' }}>Izin</option>
-                                    <option value="cuti" {{ old('jenis') === 'cuti' ? 'selected' : '' }}>Cuti</option>
-                                    <option value="sakit" {{ old('jenis') === 'sakit' ? 'selected' : '' }}>Sakit</option>
+                                    <option value="izin" {{ old('jenis_izin') === 'izin' ? 'selected' : '' }}>Izin
+                                    </option>
+                                    <option value="cuti" {{ old('jenis_izin') === 'cuti' ? 'selected' : '' }}>Cuti
+                                    </option>
+                                    <option value="sakit" {{ old('jenis_izin') === 'sakit' ? 'selected' : '' }}>Sakit
+                                    </option>
                                 </select>
-                                @error('jenis')
+                                @error('jenis_izin')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
@@ -55,20 +59,39 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Alasan <span class="text-danger">*</span></label>
-                                <textarea name="alasan" rows="4" class="form-control @error('alasan') is-invalid @enderror" required>{{ old('alasan') }}</textarea>
-                                @error('alasan')
+                                <label class="form-label">Keterangan <span class="text-danger">*</span></label>
+                                <textarea name="keterangan" rows="4" class="form-control @error('keterangan') is-invalid @enderror"
+                                    placeholder="Jelaskan alasan izin/cuti (minimal 10 karakter)" required>{{ old('keterangan') }}</textarea>
+                                @error('keterangan')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">File Pendukung (Optional)</label>
-                                <input type="file" name="file_pendukung"
-                                    class="form-control @error('file_pendukung') is-invalid @enderror"
+                                <label class="form-label">File Dokumen Pendukung (Optional)</label>
+                                <input type="file" name="file_dokumen"
+                                    class="form-control @error('file_dokumen') is-invalid @enderror"
                                     accept=".pdf,.jpg,.jpeg,.png">
-                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB</small>
-                                @error('file_pendukung')
+                                <small class="text-muted">Format: PDF, JPG, PNG. Max: 2MB. Wajib untuk sakit >2 hari</small>
+                                @error('file_dokumen')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Guru Pengganti (Optional)</label>
+                                <select name="guru_pengganti_id"
+                                    class="form-select @error('guru_pengganti_id') is-invalid @enderror">
+                                    <option value="">-- Pilih Guru Pengganti --</option>
+                                    @foreach ($availableGuru as $guru)
+                                        <option value="{{ $guru->id }}"
+                                            {{ old('guru_pengganti_id') == $guru->id ? 'selected' : '' }}>
+                                            {{ $guru->user->name }} ({{ $guru->nip }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <small class="text-muted">Pilih guru yang dapat menggantikan jadwal mengajar Anda</small>
+                                @error('guru_pengganti_id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

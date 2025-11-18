@@ -1,0 +1,66 @@
+{
+  "name": "SIAG NEKAS - Sistem Informasi Absensi Guru",
+  "short_name": "SIAG NEKAS",
+  "description": "Sistem Informasi Absensi Guru SMP Negeri 1 Kasiman berbasis Progressive Web App",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#6366F1",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/assets/images/logonekas.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/images/logonekas.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Scan Absensi",
+      "short_name": "Scan QR",
+      "description": "Scan QR Code untuk absensi",
+      "url": "/guru/absensi/scan",
+      "icons": [
+        {
+          "src": "/assets/images/logonekas.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Jadwal Hari Ini",
+      "short_name": "Jadwal",
+      "description": "Lihat jadwal mengajar hari ini",
+      "url": "/guru/jadwal/hari-ini",
+      "icons": [
+        {
+          "src": "/assets/images/logonekas.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ajukan Izin",
+      "short_name": "Izin",
+      "description": "Ajukan permohonan izin/cuti",
+      "url": "/guru/izin/create",
+      "icons": [
+        {
+          "src": "/assets/images/logonekas.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "lang": "id-ID",
+  "dir": "ltr"
+}

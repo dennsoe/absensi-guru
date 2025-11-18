@@ -35,8 +35,9 @@ QUEUE_CONNECTION=database
 ### 2. Database Tables
 
 Queue membutuhkan 2 tabel:
-- `jobs` - Menyimpan pending jobs
-- `failed_jobs` - Menyimpan failed jobs
+
+-   `jobs` - Menyimpan pending jobs
+-   `failed_jobs` - Menyimpan failed jobs
 
 Tabel sudah di-migrate saat setup awal.
 
@@ -77,6 +78,7 @@ stopwaitsecs=3600
 ```
 
 Reload supervisor:
+
 ```bash
 sudo supervisorctl reread
 sudo supervisorctl update
@@ -105,6 +107,7 @@ WantedBy=multi-user.target
 ```
 
 Enable dan start service:
+
 ```bash
 sudo systemctl enable laravel-queue
 sudo systemctl start laravel-queue
@@ -128,21 +131,22 @@ crontab -e
 ```
 
 Untuk XAMPP/Local Development:
+
 ```bash
 * * * * * cd /Applications/XAMPP/xamppfiles/htdocs/absen-guru && php artisan schedule:run >> /dev/null 2>&1
 ```
 
 ### Scheduled Tasks yang Terdaftar
 
-| Task | Schedule | Waktu | Deskripsi |
-|------|----------|-------|-----------|
-| `cleanup-expired-qr` | Every 15 minutes | */15 * * * * | Cleanup QR codes expired/used |
-| `generate-surat-peringatan` | Daily | 06:00 WIB | Generate SP untuk guru alpha |
-| `auto-backup-database` | Daily | 02:00 WIB | Backup database + compression |
-| `reminder-absensi-pagi` | Weekdays | 07:00 WIB | Reminder absen pagi |
-| `reminder-checkout-sore` | Weekdays | 15:00 WIB | Reminder checkout sore |
-| `reminder-izin-pending` | Weekdays | 08:00 WIB | Reminder approval izin |
-| `log:clear` | Weekly | Sunday 03:00 WIB | Clear old logs |
+| Task                        | Schedule         | Waktu            | Deskripsi                     |
+| --------------------------- | ---------------- | ---------------- | ----------------------------- |
+| `cleanup-expired-qr`        | Every 15 minutes | _/15 _ \* \* \*  | Cleanup QR codes expired/used |
+| `generate-surat-peringatan` | Daily            | 06:00 WIB        | Generate SP untuk guru alpha  |
+| `auto-backup-database`      | Daily            | 02:00 WIB        | Backup database + compression |
+| `reminder-absensi-pagi`     | Weekdays         | 07:00 WIB        | Reminder absen pagi           |
+| `reminder-checkout-sore`    | Weekdays         | 15:00 WIB        | Reminder checkout sore        |
+| `reminder-izin-pending`     | Weekdays         | 08:00 WIB        | Reminder approval izin        |
+| `log:clear`                 | Weekly           | Sunday 03:00 WIB | Clear old logs                |
 
 ### Lihat Scheduled Tasks
 
@@ -272,64 +276,72 @@ php artisan queue:clear database
 ### Queue Not Processing
 
 1. **Check queue worker is running:**
-   ```bash
-   ps aux | grep "queue:work"
-   ```
+
+    ```bash
+    ps aux | grep "queue:work"
+    ```
 
 2. **Check database connection:**
-   ```bash
-   php artisan tinker --execute="DB::connection()->getPdo();"
-   ```
+
+    ```bash
+    php artisan tinker --execute="DB::connection()->getPdo();"
+    ```
 
 3. **Check failed jobs:**
-   ```bash
-   php artisan queue:failed
-   ```
+
+    ```bash
+    php artisan queue:failed
+    ```
 
 4. **Check logs:**
-   ```bash
-   tail -f storage/logs/laravel.log
-   ```
+    ```bash
+    tail -f storage/logs/laravel.log
+    ```
 
 ### Jobs Failing Repeatedly
 
 1. **Increase timeout:**
-   ```bash
-   php artisan queue:work --timeout=120
-   ```
+
+    ```bash
+    php artisan queue:work --timeout=120
+    ```
 
 2. **Increase tries:**
-   ```bash
-   php artisan queue:work --tries=5
-   ```
+
+    ```bash
+    php artisan queue:work --tries=5
+    ```
 
 3. **Check memory limit:**
-   ```bash
-   php artisan queue:work --memory=512
-   ```
+    ```bash
+    php artisan queue:work --memory=512
+    ```
 
 ### Scheduled Tasks Not Running
 
 1. **Verify cron is running:**
-   ```bash
-   sudo service cron status  # Linux
-   ```
+
+    ```bash
+    sudo service cron status  # Linux
+    ```
 
 2. **Check cron logs:**
-   ```bash
-   grep CRON /var/log/syslog  # Ubuntu
-   tail -f /var/log/cron       # CentOS
-   ```
+
+    ```bash
+    grep CRON /var/log/syslog  # Ubuntu
+    tail -f /var/log/cron       # CentOS
+    ```
 
 3. **Test schedule manually:**
-   ```bash
-   php artisan schedule:run -v
-   ```
+
+    ```bash
+    php artisan schedule:run -v
+    ```
 
 4. **Check timezone:**
-   ```bash
-   php artisan tinker --execute="echo config('app.timezone');"
-   ```
+    ```bash
+    php artisan tinker --execute="echo config('app.timezone');"
+    ```
 
 ---
 
@@ -340,9 +352,9 @@ php artisan queue:clear database
 1. **Use Supervisor/Systemd** untuk queue workers (auto-restart)
 2. **Setup monitoring** untuk failed jobs (email alerts)
 3. **Regular maintenance:**
-   - Clean failed jobs setiap minggu
-   - Monitor queue size
-   - Check backup files size
+    - Clean failed jobs setiap minggu
+    - Monitor queue size
+    - Check backup files size
 4. **Set proper timeouts** sesuai job complexity
 5. **Use queue priorities** untuk urgent jobs
 6. **Log everything** untuk debugging
@@ -368,9 +380,9 @@ php artisan queue:clear database
 
 ## 📚 Related Documentation
 
-- [DEVELOPMENT_NOTES.md](./DEVELOPMENT_NOTES.md) - Complete development documentation
-- [TESTING_GUIDE.md](../TESTING_GUIDE.md) - Testing procedures
-- [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) - Production deployment
+-   [DEVELOPMENT_NOTES.md](./DEVELOPMENT_NOTES.md) - Complete development documentation
+-   [TESTING_GUIDE.md](../TESTING_GUIDE.md) - Testing procedures
+-   [DEPLOYMENT_CHECKLIST.md](../DEPLOYMENT_CHECKLIST.md) - Production deployment
 
 ---
 

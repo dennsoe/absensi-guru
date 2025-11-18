@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{IzinCuti, Guru};
 use Illuminate\Support\Facades\{Auth, Storage};
+use Carbon\Carbon;
 
 class IzinController extends Controller
 {
@@ -46,7 +47,16 @@ class IzinController extends Controller
      */
     public function create()
     {
-        return view('guru.izin.create');
+        // Get available guru for pengganti suggestion
+        $guru = Guru::where('user_id', Auth::id())->firstOrFail();
+
+        $availableGuru = Guru::where('status', 'aktif')
+            ->where('id', '!=', $guru->id)
+            ->with('user')
+            ->orderBy('nama')
+            ->get();
+
+        return view('guru.izin.create', compact('availableGuru'));
     }
 
     /**
@@ -57,21 +67,28 @@ class IzinController extends Controller
         $guru = Guru::where('user_id', Auth::id())->firstOrFail();
 
         $validated = $request->validate([
-            'jenis' => 'required|in:izin,cuti,sakit',
+            'jenis_izin' => 'required|in:izin,cuti,sakit',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'alasan' => 'required|string|max:500',
-            'file_pendukung' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'keterangan' => 'required|string|min:10|max:500',
+            'file_dokumen' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            'guru_pengganti_id' => 'nullable|exists:guru,id',
         ]);
 
-        $validated['guru_id'] = $guru->id;
-        $validated['status'] = 'pending';
+        // Calculate duration
+        $tanggalMulai = \Carbon\Carbon::parse($validated['tanggal_mulai']);
+        $tanggalSelesai = \Carbon\Carbon::parse($validated['tanggal_selesai']);
+        $durasi = $tanggalMulai->diffInDays($tanggalSelesai) + 1;
 
-        if ($request->hasFile('file_pendukung')) {
-            $file = $request->file('file_pendukung');
+        $validated['guru_id'] = $guru->id;
+        $validated['durasi_hari'] = $durasi;
+        $validated['status_approval'] = 'pending';
+
+        if ($request->hasFile('file_dokumen')) {
+            $file = $request->file('file_dokumen');
             $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('izin-cuti', $filename, 'public');
-            $validated['file_pendukung'] = $path;
+            $path = $file->storeAs('izin-dokumen', $filename, 'public');
+            $validated['file_dokumen'] = $path;
         }
 
         IzinCuti::create($validated);

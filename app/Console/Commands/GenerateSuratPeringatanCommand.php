@@ -31,30 +31,30 @@ class GenerateSuratPeringatanCommand extends Command
     public function handle()
     {
         $this->info('🚀 Starting Surat Peringatan generation...');
-        
+
         $bulan = $this->option('bulan') ?? Carbon::now()->month;
         $tahun = $this->option('tahun') ?? Carbon::now()->year;
         $guruId = $this->option('guru-id');
-        
+
         // Query guru yang perlu diproses
         $query = Guru::where('status_kepegawaian', 'aktif');
-        
+
         if ($guruId) {
             $query->where('id_guru', $guruId);
         }
-        
+
         $gurus = $query->get();
-        
+
         if ($gurus->isEmpty()) {
             $this->warn('⚠️  No active teachers found.');
             return 0;
         }
-        
+
         $this->info("Processing {$gurus->count()} teachers for period: {$bulan}/{$tahun}");
         $progressBar = $this->output->createProgressBar($gurus->count());
-        
+
         $generated = 0;
-        
+
         foreach ($gurus as $guru) {
             // Hitung jumlah alpha dalam bulan ini
             $alphaCount = Absensi::where('id_guru', $guru->id_guru)
@@ -62,7 +62,7 @@ class GenerateSuratPeringatanCommand extends Command
                 ->whereYear('tanggal_absen', $tahun)
                 ->where('status_kehadiran', 'Alpha')
                 ->count();
-            
+
             // Tentukan jenis SP berdasarkan alpha count
             $jenisSP = null;
             if ($alphaCount >= 5) {
@@ -72,7 +72,7 @@ class GenerateSuratPeringatanCommand extends Command
             } elseif ($alphaCount >= 3) {
                 $jenisSP = 'SP1';
             }
-            
+
             // Generate SP jika memenuhi kriteria
             if ($jenisSP) {
                 // Check apakah sudah ada SP untuk periode ini
@@ -81,7 +81,7 @@ class GenerateSuratPeringatanCommand extends Command
                     ->whereMonth('tanggal_sp', $bulan)
                     ->whereYear('tanggal_sp', $tahun)
                     ->first();
-                
+
                 if (!$existingSP) {
                     // Dispatch job untuk generate PDF
                     GenerateSuratPeringatan::dispatch($guru->id_guru, $jenisSP, $bulan, $tahun);
@@ -90,14 +90,14 @@ class GenerateSuratPeringatanCommand extends Command
                     $this->info("✅ Dispatched {$jenisSP} for {$guru->nama_lengkap} ({$alphaCount} alpha)");
                 }
             }
-            
+
             $progressBar->advance();
         }
-        
+
         $progressBar->finish();
         $this->newLine(2);
         $this->info("✅ Completed! {$generated} Surat Peringatan jobs dispatched to queue.");
-        
+
         return 0;
     }
 }

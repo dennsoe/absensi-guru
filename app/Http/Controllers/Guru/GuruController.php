@@ -188,4 +188,66 @@ class GuruController extends Controller
 
         return view('guru.absensi.detail', compact('absensi'));
     }
+
+    /**
+     * Halaman Absensi Keluar
+     */
+    public function absensiKeluar()
+    {
+        $guru = Auth::user()->guru;
+
+        // Cek apakah ada absensi masuk hari ini
+        $absensiMasukHariIni = Absensi::where('guru_id', $guru->id)
+            ->whereDate('tanggal', Carbon::today())
+            ->whereNotNull('jam_masuk')
+            ->first();
+
+        return view('guru.absensi.keluar', [
+            'absensiMasukHariIni' => $absensiMasukHariIni
+        ]);
+    }
+
+    /**
+     * Proses Absensi Keluar
+     */
+    public function prosesAbsensiKeluar(Request $request)
+    {
+        $guru = Auth::user()->guru;
+
+        $request->validate([
+            'absensi_id' => 'required|exists:absensis,id',
+        ]);
+
+        $absensi = Absensi::findOrFail($request->absensi_id);
+
+        // Validasi kepemilikan absensi
+        if ($absensi->guru_id !== $guru->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Absensi tidak valid'
+            ], 403);
+        }
+
+        // Validasi sudah absen keluar
+        if ($absensi->jam_keluar) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda sudah melakukan absensi keluar'
+            ], 400);
+        }
+
+        // Update jam keluar
+        $absensi->jam_keluar = Carbon::now();
+        $absensi->save();
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Absensi keluar berhasil dicatat'
+            ]);
+        }
+
+        return redirect()->route('guru.dashboard')
+            ->with('success', 'Absensi keluar berhasil dicatat');
+    }
 }

@@ -99,7 +99,53 @@
             </div>
 
             <div class="sidebar-menu-section">
-                <div class="sidebar-menu-section-title">Pengaturan</div>
+                <div class="sidebar-menu-section-title">Manajemen</div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.guru-piket.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.guru-piket.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-check sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Guru Piket</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.ketua-kelas.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.ketua-kelas.*') ? 'active' : '' }}">
+                        <i class="bi bi-person-badge sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Ketua Kelas</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.kalender-libur.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.kalender-libur.*') ? 'active' : '' }}">
+                        <i class="bi bi-calendar-event sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Kalender Libur</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.surat-peringatan.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.surat-peringatan.*') ? 'active' : '' }}">
+                        <i class="bi bi-file-earmark-text sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Surat Peringatan</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="sidebar-menu-section">
+                <div class="sidebar-menu-section-title">Sistem</div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.broadcast.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.broadcast.*') ? 'active' : '' }}">
+                        <i class="bi bi-megaphone sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Broadcast</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('admin.backup.index') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('admin.backup.*') ? 'active' : '' }}">
+                        <i class="bi bi-database sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Backup Database</span>
+                    </a>
+                </div>
                 <div class="sidebar-menu-item">
                     <a href="{{ route('admin.settings') }}"
                         class="sidebar-menu-link {{ request()->routeIs('admin.settings') ? 'active' : '' }}">
@@ -136,7 +182,14 @@
                     <a href="{{ route('guru.absensi.scan-qr') }}"
                         class="sidebar-menu-link {{ request()->routeIs('guru.absensi.scan-qr') ? 'active' : '' }}">
                         <i class="bi bi-qr-code-scan sidebar-menu-icon"></i>
-                        <span class="sidebar-menu-text">Scan QR Kelas</span>
+                        <span class="sidebar-menu-text">Absen Masuk</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('guru.absensi.keluar') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('guru.absensi.keluar') ? 'active' : '' }}">
+                        <i class="bi bi-box-arrow-right sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Absen Keluar</span>
                     </a>
                 </div>
                 <div class="sidebar-menu-item">
@@ -287,6 +340,13 @@
                         class="sidebar-menu-link {{ request()->routeIs('ketua-kelas.generate-qr') ? 'active' : '' }}">
                         <i class="bi bi-qr-code sidebar-menu-icon"></i>
                         <span class="sidebar-menu-text">QR Code Kelas</span>
+                    </a>
+                </div>
+                <div class="sidebar-menu-item">
+                    <a href="{{ route('ketua-kelas.validasi') }}"
+                        class="sidebar-menu-link {{ request()->routeIs('ketua-kelas.validasi') ? 'active' : '' }}">
+                        <i class="bi bi-check-circle sidebar-menu-icon"></i>
+                        <span class="sidebar-menu-text">Validasi Absensi</span>
                     </a>
                 </div>
                 <div class="sidebar-menu-item">

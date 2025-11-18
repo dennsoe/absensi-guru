@@ -13,12 +13,16 @@
                         <p class="text-muted">Monitor dan analisis data kehadiran guru</p>
                     </div>
                     <div>
-                        <button class="btn btn-outline-primary me-2" onclick="alert('Fitur Export PDF akan segera hadir')">
-                            <i class="bi bi-file-pdf"></i> Export PDF
-                        </button>
-                        <button class="btn btn-outline-success" onclick="alert('Fitur Export Excel akan segera hadir')">
-                            <i class="bi bi-file-excel"></i> Export Excel
-                        </button>
+                        <div class="btn-group" role="group">
+                            <a href="{{ route('admin.laporan.export-pdf.rekap-bulanan', request()->query()) }}"
+                                class="btn btn-outline-danger" target="_blank" title="Export Rekap Bulanan ke PDF">
+                                <i class="bi bi-file-pdf"></i> PDF Rekap
+                            </a>
+                            <a href="{{ route('admin.laporan.export-excel.rekap-bulanan', request()->query()) }}"
+                                class="btn btn-outline-success" title="Export Rekap Bulanan ke Excel">
+                                <i class="bi bi-file-excel"></i> Excel Rekap
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -61,7 +65,8 @@
                             <select name="status" class="form-select">
                                 <option value="">Semua Status</option>
                                 <option value="hadir" {{ request('status') == 'hadir' ? 'selected' : '' }}>Hadir</option>
-                                <option value="terlambat" {{ request('status') == 'terlambat' ? 'selected' : '' }}>Terlambat
+                                <option value="terlambat" {{ request('status') == 'terlambat' ? 'selected' : '' }}>
+                                    Terlambat
                                 </option>
                                 <option value="izin" {{ request('status') == 'izin' ? 'selected' : '' }}>Izin</option>
                                 <option value="sakit" {{ request('status') == 'sakit' ? 'selected' : '' }}>Sakit</option>
@@ -225,7 +230,7 @@
 
         <!-- Quick Links -->
         <div class="row mt-4">
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title"><i class="bi bi-person-badge"></i> Laporan Per Guru</h5>
@@ -256,7 +261,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
                 <div class="card">
                     <div class="card-body">
                         <h5 class="card-title"><i class="bi bi-building"></i> Laporan Per Kelas</h5>
@@ -284,6 +289,17 @@
                             </select>
                             <button type="submit" class="btn btn-primary">Lihat</button>
                         </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title"><i class="bi bi-clock-history text-warning"></i> Laporan Keterlambatan</h5>
+                        <p class="card-text text-muted">Lihat data guru yang terlambat</p>
+                        <a href="{{ route('admin.laporan.keterlambatan') }}" class="btn btn-warning w-100">
+                            <i class="bi bi-arrow-right"></i> Lihat Laporan
+                        </a>
                     </div>
                 </div>
             </div>

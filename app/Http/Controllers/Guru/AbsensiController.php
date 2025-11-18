@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Guru;
 
 use App\Http\Controllers\Controller;
 use App\Models\{Absensi, JadwalMengajar, QrCode, Guru};
+use App\Services\ValidationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -11,10 +12,22 @@ use Carbon\Carbon;
 
 class AbsensiController extends Controller
 {
-    // Koordinat GPS Sekolah (sesuaikan dengan lokasi sekolah)
-    const SEKOLAH_LAT = -6.200000;  // Contoh: Jakarta
-    const SEKOLAH_LNG = 106.816666;
-    const RADIUS_METER = 200;  // Radius 200 meter
+    protected $validationService;
+
+    public function __construct(ValidationService $validationService)
+    {
+        $this->validationService = $validationService;
+    }
+
+    // Get coordinates from config
+    protected function getSchoolCoordinates()
+    {
+        return [
+            'lat' => config('gps.school_latitude', -6.200000),
+            'lng' => config('gps.school_longitude', 106.816666),
+            'radius' => config('gps.radius_meters', 200),
+        ];
+    }
 
     /**
      * Halaman Scan QR Code (Guru scan QR dari Ketua Kelas)
@@ -44,11 +57,7 @@ class AbsensiController extends Controller
         return view('guru.absensi.scan-qr', [
             'guru' => $guru,
             'jadwal_hari_ini' => $jadwal_hari_ini,
-            'koordinat_sekolah' => [
-                'lat' => self::SEKOLAH_LAT,
-                'lng' => self::SEKOLAH_LNG,
-                'radius' => self::RADIUS_METER,
-            ],
+            'koordinat_sekolah' => $this->getSchoolCoordinates(),
         ]);
     }
 
@@ -80,11 +89,7 @@ class AbsensiController extends Controller
         return view('guru.absensi.selfie', [
             'guru' => $guru,
             'jadwal_hari_ini' => $jadwal_hari_ini,
-            'koordinat_sekolah' => [
-                'lat' => self::SEKOLAH_LAT,
-                'lng' => self::SEKOLAH_LNG,
-                'radius' => self::RADIUS_METER,
-            ],
+            'koordinat_sekolah' => $this->getSchoolCoordinates(),
         ]);
     }
 

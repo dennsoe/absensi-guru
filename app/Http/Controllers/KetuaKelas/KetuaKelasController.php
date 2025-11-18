@@ -431,4 +431,117 @@ class KetuaKelasController extends Controller
             'data' => $jadwal,
         ]);
     }
+
+    /**
+     * Halaman Validasi Absensi
+     */
+    public function validasi(Request $request)
+    {
+        $user = Auth::user();
+        $kelas = Kelas::where('ketua_kelas_user_id', $user->id)->first();
+
+        if (!$kelas) {
+            return redirect()->route('ketua-kelas.dashboard')
+                ->with('error', 'Anda tidak terdaftar sebagai ketua kelas.');
+        }
+
+        $tanggal = $request->input('tanggal', Carbon::today()->format('Y-m-d'));
+
+        // Query absensi untuk kelas ini
+        $query = Absensi::whereHas('jadwalMengajar', function($q) use ($kelas) {
+            $q->where('kelas_id', $kelas->id);
+        })
+        ->whereDate('tanggal', $tanggal)
+        ->with(['guru', 'jadwalMengajar']);
+
+        // Filter by status
+        if ($request->filled('status')) {
+            $query->where('validasi_ketua', $request->status);
+        }
+
+        // Filter by search (guru name)
+        if ($request->filled('search')) {
+            $query->whereHas('guru', function($q) use ($request) {
+                $q->where('nama', 'LIKE', '%' . $request->search . '%');
+            });
+        }
+
+        $absensiList = $query->latest('jam_masuk')->paginate(15);
+
+        // Statistik
+        $totalAbsensi = Absensi::whereHas('jadwalMengajar', function($q) use ($kelas) {
+            $q->where('kelas_id', $kelas->id);
+        })
+        ->whereDate('tanggal', $tanggal)
+        ->count();
+
+        $pendingCount = Absensi::whereHas('jadwalMengajar', function($q) use ($kelas) {
+            $q->where('kelas_id', $kelas->id);
+        })
+        ->whereDate('tanggal', $tanggal)
+        ->where('validasi_ketua', 'pending')
+        ->count();
+
+        $validatedCount = Absensi::whereHas('jadwalMengajar', function($q) use ($kelas) {
+            $q->where('kelas_id', $kelas->id);
+        })
+        ->whereDate('tanggal', $tanggal)
+        ->where('validasi_ketua', 'validated')
+        ->count();
+
+        $rejectedCount = Absensi::whereHas('jadwalMengajar', function($q) use ($kelas) {
+            $q->where('kelas_id', $kelas->id);
+        })
+        ->whereDate('tanggal', $tanggal)
+        ->where('validasi_ketua', 'rejected')
+        ->count();
+
+        return view('ketua-kelas.validasi', [
+            'absensiList' => $absensiList,
+            'totalAbsensi' => $totalAbsensi,
+            'pendingCount' => $pendingCount,
+            'validatedCount' => $validatedCount,
+            'rejectedCount' => $rejectedCount,
+        ]);
+    }
+
+    /**
+     * Update Status Validasi Absensi
+     */
+    public function validasiUpdate(Request $request)
+    {
+        $request->validate([
+            'absensi_id' => 'required|exists:absensis,id',
+            'status' => 'required|in:pending,validated,rejected',
+        ]);
+
+        $user = Auth::user();
+        $kelas = Kelas::where('ketua_kelas_user_id', $user->id)->first();
+
+        if (!$kelas) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak terdaftar sebagai ketua kelas'
+            ], 403);
+        }
+
+        $absensi = Absensi::findOrFail($request->absensi_id);
+
+        // Validasi absensi untuk kelas ini
+        if ($absensi->jadwalMengajar->kelas_id !== $kelas->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak memiliki akses untuk validasi absensi ini'
+            ], 403);
+        }
+
+        $absensi->validasi_ketua = $request->status;
+        $absensi->ketua_kelas_user_id = $user->id;
+        $absensi->save();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status validasi berhasil diupdate'
+        ]);
+    }
 }

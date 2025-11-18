@@ -3,28 +3,33 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | GPS Coordinates - SMK Negeri Kasomalang
+    | GPS Coordinates - SDN Nekas
     |--------------------------------------------------------------------------
     | Koordinat GPS sekolah untuk validasi absensi
     | Gunakan Google Maps untuk mendapatkan koordinat yang akurat
     */
     'school_location' => [
-        'latitude' => -6.4167, // Update dengan koordinat GPS sebenarnya
-        'longitude' => 107.7667, // Update dengan koordinat GPS sebenarnya
-        'name' => 'SMK Negeri Kasomalang',
-        'address' => 'Jl. Raya Kasomalang, Kasomalang Kulon, Kec. Kasomalang, Kabupaten Subang, Jawa Barat 41281',
+        'latitude' => env('SCHOOL_LATITUDE', -6.4167),
+        'longitude' => env('SCHOOL_LONGITUDE', 107.7667),
+        'name' => env('SCHOOL_NAME', 'SDN Nekas'),
+        'address' => env('SCHOOL_ADDRESS', 'Jl. Raya Kasomalang, Kasomalang Kulon, Kec. Kasomalang, Kabupaten Subang, Jawa Barat 41281'),
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | GPS Validation
+    | GPS Validation - Used by ValidationService
     |--------------------------------------------------------------------------
     */
     'validation' => [
-        'enabled' => true,
-        'radius_meter' => 100, // Radius validasi dalam meter
-        'strict_mode' => false, // Jika true, absensi di luar radius akan ditolak
+        'enabled' => env('GPS_VALIDATION_ENABLED', true),
+        'radius_meter' => env('GPS_RADIUS_METERS', 200), // Radius validasi dalam meter
+        'strict_mode' => env('GPS_STRICT_MODE', false), // Jika true, absensi di luar radius akan ditolak
     ],
+
+    // Backward compatibility - used by ValidationService
+    'school_latitude' => env('SCHOOL_LATITUDE', -6.4167),
+    'school_longitude' => env('SCHOOL_LONGITUDE', 107.7667),
+    'radius_meters' => env('GPS_RADIUS_METERS', 200),
 
     /*
     |--------------------------------------------------------------------------
