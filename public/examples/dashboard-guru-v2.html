@@ -29,17 +29,17 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-            background: var(--light);
+            background: linear-gradient(180deg, #F0F4FF 0%, #E8EFFA 50%, #F5F7FA 100%);
             color: var(--text);
             line-height: 1.5;
             overflow-x: hidden;
-            padding-top: 40px;
+            padding-top: 0%;
         }
 
         .viewport {
             max-width: 480px;
             margin: 0 auto;
-            background: white;
+            background: transparent;
             min-height: 100vh;
             position: relative;
             padding-bottom: 70px;
@@ -47,10 +47,12 @@
 
         /* Header */
         .header-wrap {
-            background: linear-gradient(180deg, var(--primary) 0%, #1E3A8A 100%);
+            background: linear-gradient(180deg, rgba(30, 64, 175, 0.98) 0%, rgba(30, 58, 138, 0.95) 100%);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
             padding: 76px 20px 110px 20px;
-            position: relative;
-            margin-top: -50px;
+            margin-top: 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
         }
 
         .header-top {
@@ -59,14 +61,27 @@
             align-items: center;
             position: fixed;
             top: 0;
-            left: 0;
-            right: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
             max-width: 480px;
-            margin: 0 auto;
-            background: linear-gradient(180deg, var(--primary) 0%, #1E3A8A 100%);
+            background: rgba(255, 255, 255, 0);
+            backdrop-filter: blur(0px) saturate(100%);
+            -webkit-backdrop-filter: blur(0px) saturate(100%);
             padding: 12px 16px;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+            z-index: 1000;
+            box-shadow: none;
+            border-bottom: 1px solid transparent;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .header-top.scrolled {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(40px) saturate(200%);
+            -webkit-backdrop-filter: blur(40px) saturate(200%);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .school-info {
@@ -87,12 +102,22 @@
             margin: 0;
             display: flex;
             align-items: center;
+            transition: color 0.4s ease;
+        }
+
+        .header-top.scrolled .school-info h1 {
+            color: #1E293B;
         }
 
         .school-info p {
             font-size: 11px;
             color: rgba(255, 255, 255, 0.8);
             margin: 2px 0 0 0;
+            transition: color 0.4s ease;
+        }
+
+        .header-top.scrolled .school-info p {
+            color: rgba(30, 41, 59, 0.75);
         }
 
         /* Scrolled state - slide default content up */
@@ -114,7 +139,7 @@
         .school-info-alt h1 {
             font-size: 14px;
             font-weight: 700;
-            color: white;
+            color: #1E293B;
             letter-spacing: 0.3px;
             margin: 0;
             display: flex;
@@ -125,7 +150,7 @@
 
         .school-info-alt p {
             font-size: 13px;
-            color: rgba(255, 255, 255, 0.95);
+            color: rgba(30, 41, 59, 0.75);
             margin: 3px 0 0 0;
             white-space: nowrap;
             line-height: 1.2;
@@ -145,10 +170,11 @@
         .btn-icon {
             width: 36px;
             height: 36px;
-            border-radius: 10px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(10px);
-            border: none;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.25);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -156,6 +182,23 @@
             font-size: 18px;
             position: relative;
             cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            transition: all 0.4s ease;
+        }
+
+        .header-top.scrolled .btn-icon {
+            background: rgba(30, 41, 59, 0.08);
+            border: 1px solid rgba(30, 41, 59, 0.12);
+            color: #1E293B;
+        }
+
+        .btn-icon:active {
+            transform: scale(0.95);
+        }
+
+        .header-top.scrolled .btn-icon:active {
+            background: rgba(30, 41, 59, 0.15);
         }
 
         .notif-badge {
@@ -164,14 +207,21 @@
             right: 4px;
             width: 16px;
             height: 16px;
-            background: var(--danger);
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
             border-radius: 50%;
             font-size: 9px;
             font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 2px solid var(--primary);
+            border: 2px solid transparent;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.5),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: border-color 0.4s ease;
+        }
+
+        .header-top.scrolled .notif-badge {
+            border-color: rgba(255, 255, 255, 0.9);
         }
 
         .guru-profile {
@@ -185,15 +235,19 @@
         .avatar-lg {
             width: 64px;
             height: 64px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.95) 0%, rgba(124, 58, 237, 0.95) 100%);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 26px;
             font-weight: 700;
-            border: 3px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4),
+                        0 4px 12px rgba(236, 72, 153, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
             flex-shrink: 0;
         }
 
@@ -236,9 +290,14 @@
             font-size: 11px;
             margin-top: 4px;
             padding: 4px 10px;
-            background: rgba(16, 185, 129, 0.2);
+            background: rgba(16, 185, 129, 0.25);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
             border-radius: 20px;
-            color: #A7F3D0;
+            color: #D1FAE5;
+            border: 1px solid rgba(167, 243, 208, 0.3);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.2);
         }
 
         .status-online::before {
@@ -251,26 +310,35 @@
         }
 
         .attendance-status {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+                        0 1px 2px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
             overflow: hidden;
             margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .card-header-custom {
-            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
+            background: rgba(240, 249, 255, 0.25);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
             padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 12px;
-            border-bottom: 1px solid #BAE6FD;
+            border-bottom: 1px solid rgba(186, 230, 253, 0.25);
         }
 
         .alert-banner {
-            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%);
-            border: 1px solid #A7F3D0;
+            background: rgba(236, 253, 245, 0.3);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
+            border: 1px solid rgba(167, 243, 208, 0.3);
             border-radius: 0;
             padding: 20px;
             display: flex;
@@ -368,13 +436,16 @@
             align-items: center;
             gap: 6px;
             padding: 6px 12px;
-            background: white;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 700;
             color: #1E40AF;
-            border: 1px solid rgba(59, 130, 246, 0.15);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .current-time-badge i {
@@ -399,13 +470,16 @@
             align-items: center;
             gap: 6px;
             padding: 6px 12px;
-            background: white;
-            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border-radius: 10px;
             font-size: 11px;
             font-weight: 600;
             color: #059669;
-            border: 1px solid rgba(16, 185, 129, 0.15);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .date-badge i {
@@ -419,10 +493,15 @@
         }
 
         .stats-section {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+                        0 1px 2px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
             padding: 28px 24px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .quick-stats {
@@ -432,32 +511,39 @@
         }
 
         .stat-item {
-            background: #FAFAFA;
-            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
+            border-radius: 18px;
             padding: 18px 16px;
             display: flex;
             align-items: center;
             gap: 14px;
-            transition: all 0.3s ease;
-            border: 1px solid #F3F4F6;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .stat-item:hover {
-            background: white;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-            border-color: transparent;
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .stat-icon {
             width: 48px;
             height: 48px;
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
             flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .stat-item:nth-child(1) .stat-icon {
@@ -505,13 +591,18 @@
 
         /* Floating Action Card */
         .floating-action-card {
-            background: white;
+            background: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(30px) saturate(200%);
+            -webkit-backdrop-filter: blur(30px) saturate(200%);
             margin: -70px 20px 24px;
-            border-radius: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+            border-radius: 24px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+                        0 1px 2px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
             padding: 20px;
             position: relative;
             z-index: 15;
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         /* Main Content */
@@ -540,6 +631,15 @@
             display: flex;
             align-items: center;
             gap: 4px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .link-more:hover {
+            background: rgba(59, 130, 246, 0.1);
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
         }
 
         /* Action Grid */
@@ -558,14 +658,16 @@
             width: 60px;
             height: 60px;
             margin: 0 auto 10px;
-            border-radius: 18px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 26px;
             position: relative;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            transition: transform 0.2s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .action-item:active .action-icon-wrap {
@@ -601,10 +703,15 @@
 
         /* Month Summary Card */
         .summary-card {
-            background: linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%);
-            border-radius: 16px;
+            background: rgba(240, 249, 255, 0.3);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border-radius: 20px;
             padding: 20px;
             margin-bottom: 24px;
+            border: 1px solid rgba(224, 242, 254, 0.35);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .summary-header {
@@ -622,11 +729,16 @@
 
         .month-badge {
             padding: 6px 14px;
-            background: white;
+            background: rgba(255, 255, 255, 0.35);
+            backdrop-filter: blur(16px) saturate(200%);
+            -webkit-backdrop-filter: blur(16px) saturate(200%);
             border-radius: 20px;
             font-size: 12px;
             font-weight: 600;
             color: var(--primary);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .summary-grid {
@@ -638,19 +750,34 @@
         .summary-item {
             text-align: center;
             padding: 14px 10px;
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(20px) saturate(200%);
+            -webkit-backdrop-filter: blur(20px) saturate(200%);
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .summary-item:hover {
+            background: rgba(255, 255, 255, 0.38);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .summary-item-icon {
             width: 36px;
             height: 36px;
             margin: 0 auto 8px;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .summary-item:nth-child(1) .summary-item-icon {
@@ -687,13 +814,25 @@
 
         /* Schedule Card */
         .schedule-card {
-            background: white;
-            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border-radius: 20px;
             padding: 16px;
             margin-bottom: 12px;
-            border: 1.5px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             position: relative;
             overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .schedule-card:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .schedule-card::before {
@@ -745,20 +884,25 @@
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.3px;
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .badge-active {
-            background: linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%);
+            background: rgba(219, 234, 254, 0.8);
             color: var(--primary);
         }
 
         .badge-completed {
-            background: #D1FAE5;
+            background: rgba(209, 250, 229, 0.8);
             color: var(--success);
         }
 
         .badge-upcoming {
-            background: var(--light);
+            background: rgba(249, 250, 251, 0.8);
             color: var(--text-light);
         }
 
@@ -789,26 +933,36 @@
 
         /* Reminder Card */
         .reminder-card {
-            background: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-            border-radius: 16px;
+            background: rgba(254, 243, 199, 0.35);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border-radius: 20px;
             padding: 16px;
             margin-bottom: 24px;
             display: flex;
             gap: 14px;
             align-items: flex-start;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .reminder-icon {
             width: 44px;
             height: 44px;
-            background: white;
-            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 22px;
             color: var(--warning);
             flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.8);
         }
 
         .reminder-content h4 {
@@ -826,33 +980,56 @@
 
         /* Task List */
         .task-list-item {
-            background: white;
-            border: 1.5px solid var(--border);
-            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(24px) saturate(200%);
+            -webkit-backdrop-filter: blur(24px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 18px;
             padding: 16px;
             margin-bottom: 10px;
             display: flex;
             gap: 14px;
             align-items: flex-start;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .task-list-item:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6);
         }
 
         .task-check {
             width: 24px;
             height: 24px;
-            border: 2.5px solid var(--border);
+            border: 2.5px solid rgba(229, 231, 235, 0.8);
+            background: rgba(255, 255, 255, 0.5);
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
             border-radius: 8px;
             flex-shrink: 0;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .task-check:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
         }
 
         .task-list-item.done .task-check {
-            background: var(--success);
-            border-color: var(--success);
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            border-color: #10B981;
             color: white;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
 
         .task-info {
@@ -882,115 +1059,175 @@
         .priority-label {
             display: inline-block;
             padding: 3px 10px;
-            border-radius: 6px;
+            border-radius: 8px;
             font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             margin-left: 8px;
+            backdrop-filter: blur(8px) saturate(180%);
+            -webkit-backdrop-filter: blur(8px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.5);
         }
 
         .priority-high {
-            background: #FEE2E2;
+            background: rgba(254, 226, 226, 0.8);
             color: var(--danger);
         }
 
         .priority-medium {
-            background: #FEF3C7;
+            background: rgba(254, 243, 199, 0.8);
             color: var(--warning);
         }
 
         /* Bottom Nav */
         .bottom-nav {
             position: fixed;
-            bottom: 0;
+            bottom: 12px;
             left: 50%;
             transform: translateX(-50%);
-            width: 100%;
-            max-width: 480px;
-            background: white;
-            border-top: 1px solid var(--border);
-            padding: 8px 0;
+            width: calc(100% - 32px);
+            max-width: 448px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.2) 100%);
+            backdrop-filter: blur(50px) saturate(200%);
+            -webkit-backdrop-filter: blur(50px) saturate(200%);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 28px;
+            padding: 6px 8px;
             display: flex;
             justify-content: space-around;
             align-items: center;
             z-index: 100;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06),
+                        0 2px 8px rgba(0, 0, 0, 0.03),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+                        inset 0 -1px 0 rgba(0, 0, 0, 0.02);
         }
 
         .nav-item {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 4px;
+            gap: 2px;
             text-decoration: none;
-            color: var(--text-light);
-            padding: 8px 0;
+            color: #64748B;
+            padding: 8px 12px;
             flex: 1;
             position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 18px;
         }
 
         .nav-item.active {
-            color: var(--primary);
+            color: #3B82F6;
+            background: rgba(59, 130, 246, 0.12);
+            backdrop-filter: blur(12px) saturate(180%);
+            -webkit-backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: inset 0 1px 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .nav-item:active:not(.scan) {
+            transform: scale(0.95);
+            background: rgba(0, 0, 0, 0.05);
         }
 
         .nav-item i {
-            font-size: 24px;
+            font-size: 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item.active i {
+            transform: translateY(-2px);
         }
 
         .nav-item span {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 600;
+            letter-spacing: 0.2px;
         }
 
         .nav-item.scan {
-            top: -28px;
+            top: -24px;
+            margin: 0 -4px;
         }
 
         .scan-btn {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.98) 0%, rgba(99, 102, 241, 0.98) 100%);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 32px;
-            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.3);
-            border: 4px solid white;
+            font-size: 28px;
+            box-shadow: 0 8px 24px rgba(59, 130, 246, 0.35),
+                        0 4px 12px rgba(99, 102, 241, 0.25),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.4),
+                        inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .scan-btn::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: 20px;
+            padding: 2px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05));
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .scan-btn:active {
+            transform: scale(0.92);
+            box-shadow: 0 4px 16px rgba(59, 130, 246, 0.3),
+                        0 2px 6px rgba(99, 102, 241, 0.2),
+                        inset 0 1px 0 rgba(255, 255, 255, 0.3);
         }
     </style>
 </head>
 <body>
     <div class="viewport">
-        <!-- Header -->
-        <div class="header-wrap">
-            <div class="header-top" id="headerTop">
-                <div class="school-info" id="headerInfo">
-                    <!-- Default content -->
-                    <div>
-                        <h1 id="headerTitle">SIAG NEKAS</h1>
-                        <p id="headerSubtitle">SMK Negeri Kasomalang</p>
-                    </div>
-
-                    <!-- Scrolled content -->
-                    <div class="school-info-alt" id="headerAlt">
-                        <h1>
-                            <i id="headerIcon" class="bi" style="margin-right: 8px; font-size: 16px;"></i>
-                            <span id="headerTitleAlt">Selamat Sore!</span>
-                        </h1>
-                        <p id="headerSubtitleAlt">Dedi Suryadi, S.Kom</p>
-                    </div>
+        <!-- Fixed Header Nav -->
+        <div class="header-top" id="headerTop">
+            <div class="school-info" id="headerInfo">
+                <!-- Default content -->
+                <div>
+                    <h1 id="headerTitle">SIAG NEKAS</h1>
+                    <p id="headerSubtitle">SMK Negeri Kasomalang</p>
                 </div>
-                <div class="header-actions">
-                    <button class="btn-icon">
-                        <i class="bi bi-bell-fill"></i>
-                        <span class="notif-badge">3</span>
-                    </button>
-                    <button class="btn-icon">
-                        <i class="bi bi-gear-fill"></i>
-                    </button>
+
+                <!-- Scrolled content -->
+                <div class="school-info-alt" id="headerAlt">
+                    <h1>
+                        <i id="headerIcon" class="bi" style="margin-right: 8px; font-size: 16px;"></i>
+                        <span id="headerTitleAlt">Selamat Sore!</span>
+                    </h1>
+                    <p id="headerSubtitleAlt">Dedi Suryadi, S.Kom</p>
                 </div>
             </div>
+            <div class="header-actions">
+                <button class="btn-icon">
+                    <i class="bi bi-bell-fill"></i>
+                    <span class="notif-badge">3</span>
+                </button>
+                <button class="btn-icon">
+                    <i class="bi bi-gear-fill"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="header-wrap">
 
             <div class="guru-profile">
                 <div class="avatar-lg">DS</div>
