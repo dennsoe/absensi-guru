@@ -69,18 +69,72 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
         }
 
+        .school-info {
+            position: relative;
+            overflow: hidden;
+            height: 38px;
+        }
+
+        .school-info > div:first-child {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
         .school-info h1 {
             font-size: 14px;
             font-weight: 700;
             color: white;
             letter-spacing: 0.3px;
             margin: 0;
+            display: flex;
+            align-items: center;
         }
 
         .school-info p {
             font-size: 11px;
             color: rgba(255, 255, 255, 0.8);
             margin: 2px 0 0 0;
+        }
+
+        /* Scrolled state - slide default content up */
+        .header-top.scrolled .school-info > div:first-child {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+
+        /* Alternate content for scrolled state */
+        .school-info-alt {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .school-info-alt h1 {
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.3px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+
+        .school-info-alt p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.95);
+            margin: 3px 0 0 0;
+            white-space: nowrap;
+            line-height: 1.2;
+            font-weight: 600;
+        }
+
+        .header-top.scrolled .school-info-alt {
+            transform: translateY(0);
+            opacity: 1;
         }
 
         .header-actions {
@@ -912,8 +966,20 @@
         <div class="header-wrap">
             <div class="header-top" id="headerTop">
                 <div class="school-info" id="headerInfo">
-                    <h1 id="headerTitle">SIAG NEKAS</h1>
-                    <p id="headerSubtitle">SMK Negeri Kasomalang</p>
+                    <!-- Default content -->
+                    <div>
+                        <h1 id="headerTitle">SIAG NEKAS</h1>
+                        <p id="headerSubtitle">SMK Negeri Kasomalang</p>
+                    </div>
+
+                    <!-- Scrolled content -->
+                    <div class="school-info-alt" id="headerAlt">
+                        <h1>
+                            <i id="headerIcon" class="bi" style="margin-right: 8px; font-size: 16px;"></i>
+                            <span id="headerTitleAlt">Selamat Sore!</span>
+                        </h1>
+                        <p id="headerSubtitleAlt">Dedi Suryadi, S.Kom</p>
+                    </div>
                 </div>
                 <div class="header-actions">
                     <button class="btn-icon">
@@ -1303,13 +1369,13 @@
             if (hour >= 5 && hour < 10) {
                 greeting = 'Selamat Pagi!';
                 icon = 'bi-brightness-high-fill'; // Matahari pagi
-            } else if (hour >= 10 && hour < 15) {
+            } else if (hour >= 10 && hour < 14) {
                 greeting = 'Selamat Siang!';
                 icon = 'bi-sun-fill'; // Matahari terik
-            } else if (hour >= 15 && hour < 18) {
+            } else if (hour >= 14 && hour < 17) {
                 greeting = 'Selamat Sore!';
                 icon = 'bi-sunset-fill'; // Matahari sore
-            } else if (hour >= 18 && hour < 19) {
+            } else if (hour >= 17 && hour < 18) {
                 greeting = 'Selamat Petang!';
                 icon = 'bi-cloud-sun-fill'; // Petang
             } else {
@@ -1330,6 +1396,44 @@
 
         // Update greeting setiap 1 menit
         setInterval(updateGreeting, 60000);
+
+        // Update greeting di header alt saat load dan setiap kali berubah
+        function updateHeaderAlt() {
+            const greetingText = document.getElementById('greetingText').textContent;
+            const greetingIconClass = document.getElementById('greetingIcon').className;
+
+            const headerIcon = document.getElementById('headerIcon');
+            const headerTitleAlt = document.getElementById('headerTitleAlt');
+
+            if (headerIcon && headerTitleAlt) {
+                headerIcon.className = greetingIconClass;
+                headerTitleAlt.textContent = greetingText;
+            }
+        }
+
+        // Update pertama kali
+        updateHeaderAlt();
+
+        // Update setiap kali greeting berubah (setiap 1 menit)
+        setInterval(updateHeaderAlt, 60000);
+
+        // Scroll handler dengan slide transition
+        let isScrolled = false;
+
+        window.addEventListener('scroll', function() {
+            const scrollPosition = window.scrollY;
+            const headerTop = document.getElementById('headerTop');
+
+            // Threshold scroll (50px)
+            if (scrollPosition > 50 && !isScrolled) {
+                isScrolled = true;
+                headerTop.classList.add('scrolled');
+
+            } else if (scrollPosition <= 50 && isScrolled) {
+                isScrolled = false;
+                headerTop.classList.remove('scrolled');
+            }
+        });
     </script>
 </body>
 </html>
